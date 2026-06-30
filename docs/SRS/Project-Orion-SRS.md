@@ -2912,3 +2912,122 @@ The Logging Engine shall be considered compliant when it can:
 * Export deployment logs.
 * Maintain chronological log integrity.
 * Support configurable logging levels.
+
+# 11.14 Security Requirements
+
+## Overview
+
+Security is a foundational design principle of Project Orion.
+
+All Orion components shall be designed according to the principles of least privilege, defense in depth, secure defaults, and explicit authorization.
+
+Security requirements apply to every subsystem within the Orion ecosystem.
+
+---
+
+### REQ-SEC-001
+
+All communication between Orion nodes and the Deployment Controller shall occur over encrypted channels.
+
+---
+
+### REQ-SEC-002
+
+The Deployment Controller shall authenticate every node prior to accepting deployment requests.
+
+---
+
+### REQ-SEC-003
+
+Every Orion node shall possess a unique identity assigned by the Deployment Controller.
+
+---
+
+### REQ-SEC-004
+
+Unauthorized nodes shall not receive deployment configuration.
+
+---
+
+### REQ-SEC-005
+
+The Deployment Controller shall reject duplicate node identities.
+
+---
+
+### REQ-SEC-006
+
+Authentication failures shall be logged.
+
+---
+
+### REQ-SEC-007
+
+Authorization failures shall be logged.
+
+---
+
+### REQ-SEC-008
+
+Sensitive configuration values shall not be stored in source code.
+
+---
+
+### REQ-SEC-009
+
+Sensitive credentials shall be stored securely.
+
+---
+
+### REQ-SEC-010
+
+The Deployment Controller shall never transmit credentials in plaintext.
+
+---
+
+### REQ-SEC-011
+
+Operator confirmations for destructive operations shall be recorded within deployment logs.
+
+---
+
+### REQ-SEC-012
+
+Deployment reports shall indicate whether all security checks completed successfully.
+
+---
+
+### REQ-SEC-013
+
+Temporary deployment credentials shall be removed after successful deployment whenever practical.
+
+---
+
+### REQ-SEC-014
+
+Bootstrap shall verify the authenticity of Deployment Controller responses.
+
+---
+
+### REQ-SEC-015
+
+Security-related events shall be classified separately within deployment logs.
+
+---
+
+### REQ-SEC-016
+
+Future authentication providers shall be supportable without requiring architectural redesign.
+
+---
+
+## Acceptance Criteria
+
+The Security subsystem shall be considered compliant when it can:
+
+* Authenticate Orion nodes.
+* Secure communications.
+* Protect deployment credentials.
+* Reject unauthorized deployments.
+* Log all security events.
+* Remove temporary deployment secrets.
