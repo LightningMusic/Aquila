@@ -2562,3 +2562,353 @@ The Benchmark Engine shall be considered compliant when it can:
 * Submit benchmark data.
 * Associate benchmark history with deployed nodes.
 * Report benchmark failures independently of deployment status.
+
+# 11.11 Networking Requirements
+
+## Overview
+
+The Networking Engine provides network connectivity for Orion deployments and operational communications.
+
+Networking is required for Orion Node Provisioning but is not required for the Device Retirement workflow.
+
+The Networking Engine shall verify connectivity before allowing network-dependent deployment stages to begin.
+
+---
+
+### REQ-NET-001
+
+The Networking Engine shall enumerate all available network interfaces.
+
+---
+
+### REQ-NET-002
+
+The Networking Engine shall identify all Ethernet interfaces.
+
+---
+
+### REQ-NET-003
+
+The Networking Engine shall determine Ethernet link status.
+
+---
+
+### REQ-NET-004
+
+The Networking Engine shall verify that an Ethernet cable is connected before provisioning begins.
+
+---
+
+### REQ-NET-005
+
+The Networking Engine shall acquire network configuration according to deployment policy.
+
+Supported methods may include:
+
+* DHCP
+* Static IPv4
+* Static IPv6
+
+---
+
+### REQ-NET-006
+
+The Networking Engine shall verify successful IP address assignment.
+
+---
+
+### REQ-NET-007
+
+The Networking Engine shall verify gateway connectivity when required by deployment policy.
+
+---
+
+### REQ-NET-008
+
+The Networking Engine shall verify DNS resolution when required.
+
+---
+
+### REQ-NET-009
+
+The Networking Engine shall verify communication with the Deployment Controller.
+
+---
+
+### REQ-NET-010
+
+The Networking Engine shall verify communication with the target Proxmox cluster.
+
+---
+
+### REQ-NET-011
+
+If network connectivity is lost during provisioning, Orion shall pause deployment and attempt recovery when practical.
+
+---
+
+### REQ-NET-012
+
+If communication cannot be restored, Orion shall terminate provisioning safely and preserve diagnostic information.
+
+---
+
+### REQ-NET-013
+
+The Networking Engine shall record network diagnostics within the deployment report.
+
+---
+
+### REQ-NET-014
+
+The Networking Engine shall log all network validation failures.
+
+---
+
+## Acceptance Criteria
+
+The Networking Engine shall be considered compliant when it can:
+
+* Detect Ethernet connectivity.
+* Acquire network configuration.
+* Validate Deployment Controller communication.
+* Validate Proxmox cluster communication.
+* Report network failures.
+* Produce networking diagnostics.
+
+# 11.12 Configuration Requirements
+
+## Overview
+
+Project Orion shall utilize a centralized configuration system.
+
+Configuration shall define deployment behavior without requiring modification of application source code.
+
+Configuration files shall be version controlled and validated before use.
+
+---
+
+### REQ-CONF-001
+
+The Configuration Engine shall load deployment configuration during application startup.
+
+---
+
+### REQ-CONF-002
+
+Configuration shall be stored separately from application source code.
+
+---
+
+### REQ-CONF-003
+
+Configuration files shall support version identification.
+
+---
+
+### REQ-CONF-004
+
+The Configuration Engine shall validate configuration schema before deployment begins.
+
+---
+
+### REQ-CONF-005
+
+Invalid configuration shall prevent deployment from beginning.
+
+---
+
+### REQ-CONF-006
+
+Configuration shall support deployment policy customization.
+
+---
+
+### REQ-CONF-007
+
+Configuration shall support networking customization.
+
+---
+
+### REQ-CONF-008
+
+Configuration shall support storage preparation settings.
+
+---
+
+### REQ-CONF-009
+
+Configuration shall support benchmark settings.
+
+---
+
+### REQ-CONF-010
+
+Configuration shall support logging settings.
+
+---
+
+### REQ-CONF-011
+
+Configuration shall support battery charging policy configuration where supported hardware permits.
+
+---
+
+### REQ-CONF-012
+
+Configuration shall support operating system power management settings.
+
+---
+
+### REQ-CONF-013
+
+Configuration shall support Deployment Controller connection settings.
+
+---
+
+### REQ-CONF-014
+
+Configuration shall support future expansion without invalidating existing configuration files whenever practical.
+
+---
+
+### REQ-CONF-015
+
+The Configuration Engine shall provide validated configuration data to authorized Orion subsystems.
+
+---
+
+## Acceptance Criteria
+
+The Configuration Engine shall be considered compliant when it can:
+
+* Load configuration files.
+* Validate configuration.
+* Reject invalid configuration.
+* Distribute configuration to Orion subsystems.
+* Maintain configuration compatibility across supported versions.
+
+# 11.13 Logging Requirements
+
+## Overview
+
+The Logging Engine provides centralized event recording for every Orion subsystem.
+
+Logs are intended to support troubleshooting, deployment auditing, diagnostics, and future analytics.
+
+Every significant system event shall be recorded through the Logging Engine.
+
+---
+
+### REQ-LOG-001
+
+The Logging Engine shall provide a centralized logging interface for all Orion subsystems.
+
+---
+
+### REQ-LOG-002
+
+Each log entry shall include, at minimum:
+
+* Timestamp
+* Severity
+* Subsystem
+* Event identifier
+* Event description
+
+---
+
+### REQ-LOG-003
+
+Supported severity levels shall include:
+
+* Debug
+* Information
+* Warning
+* Error
+* Critical
+
+---
+
+### REQ-LOG-004
+
+The Logging Engine shall record deployment lifecycle events.
+
+---
+
+### REQ-LOG-005
+
+The Logging Engine shall record operator confirmations.
+
+---
+
+### REQ-LOG-006
+
+The Logging Engine shall record deployment failures.
+
+---
+
+### REQ-LOG-007
+
+The Logging Engine shall record hardware inspection results.
+
+---
+
+### REQ-LOG-008
+
+The Logging Engine shall record storage sanitization operations.
+
+---
+
+### REQ-LOG-009
+
+The Logging Engine shall record Provisioning and Bootstrap events.
+
+---
+
+### REQ-LOG-010
+
+The Logging Engine shall record communications with the Deployment Controller.
+
+---
+
+### REQ-LOG-011
+
+The Logging Engine shall support exporting deployment logs as part of the deployment report.
+
+---
+
+### REQ-LOG-012
+
+Log entries shall be written in chronological order.
+
+---
+
+### REQ-LOG-013
+
+The Logging Engine shall protect log integrity against accidental modification during deployment.
+
+---
+
+### REQ-LOG-014
+
+The Logging Engine shall support configurable log verbosity.
+
+---
+
+### REQ-LOG-015
+
+The Logging Engine shall permit future integration with centralized log aggregation systems.
+
+---
+
+## Acceptance Criteria
+
+The Logging Engine shall be considered compliant when it can:
+
+* Record deployment events.
+* Record operator actions.
+* Record subsystem events.
+* Export deployment logs.
+* Maintain chronological log integrity.
+* Support configurable logging levels.
