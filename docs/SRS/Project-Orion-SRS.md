@@ -1053,3 +1053,299 @@ Each subsystem shall expose clearly defined interfaces and shall avoid unnecessa
 
 Future Orion releases may introduce additional components without modifying existing subsystem responsibilities.
 
+# 11. Functional Requirements
+
+## 11.1 Requirement Conventions
+
+Every functional requirement within Project Orion shall be assigned a unique identifier.
+
+Requirement identifiers follow the format:
+
+```
+REQ-[Subsystem]-###
+```
+
+Examples:
+
+* REQ-TC-001
+* REQ-INS-014
+* REQ-REC-008
+
+Each requirement shall define a single observable behavior.
+
+Each requirement shall be independently testable.
+
+---
+
+# 11.2 Technician Console Requirements
+
+## Overview
+
+The Technician Console is the primary interface presented to the technician throughout every Orion deployment session.
+
+The Technician Console is responsible for coordinating deployment workflows while maintaining operator awareness and control.
+
+---
+
+### REQ-TC-001
+
+The Technician Console shall launch automatically after the Orion deployment environment has booted successfully.
+
+---
+
+### REQ-TC-002
+
+The Technician Console shall display the current Orion software version.
+
+---
+
+### REQ-TC-003
+
+The Technician Console shall display the current deployment media version.
+
+---
+
+### REQ-TC-004
+
+The Technician Console shall display the current system date and time.
+
+---
+
+### REQ-TC-005
+
+The Technician Console shall display the currently detected target computer.
+
+---
+
+### REQ-TC-006
+
+The Technician Console shall provide access to the Device Retirement workflow.
+
+---
+
+### REQ-TC-007
+
+The Technician Console shall provide access to the Orion Node Provisioning workflow.
+
+---
+
+### REQ-TC-008
+
+The Technician Console shall provide access to deployment logs.
+
+---
+
+### REQ-TC-009
+
+The Technician Console shall display deployment progress during long-running operations.
+
+---
+
+### REQ-TC-010
+
+The Technician Console shall display warnings separately from informational messages.
+
+---
+
+### REQ-TC-011
+
+The Technician Console shall display errors separately from warnings.
+
+---
+
+### REQ-TC-012
+
+The Technician Console shall prevent destructive operations from beginning until all required operator confirmations have been completed.
+
+---
+
+### REQ-TC-013
+
+The Technician Console shall generate a deployment summary upon completion of every deployment session.
+
+---
+
+# 11.3 Inspection Engine Requirements
+
+## Overview
+
+The Inspection Engine evaluates hardware without modifying the target system.
+
+Inspection operations shall be read-only.
+
+---
+
+### REQ-INS-001
+
+The Inspection Engine shall enumerate all installed processors.
+
+---
+
+### REQ-INS-002
+
+The Inspection Engine shall identify processor manufacturer, model, architecture, and virtualization capabilities.
+
+---
+
+### REQ-INS-003
+
+The Inspection Engine shall enumerate installed memory modules.
+
+---
+
+### REQ-INS-004
+
+The Inspection Engine shall report total installed system memory.
+
+---
+
+### REQ-INS-005
+
+The Inspection Engine shall enumerate all storage devices connected to the system.
+
+---
+
+### REQ-INS-006
+
+The Inspection Engine shall identify storage device type.
+
+Supported examples include:
+
+* SATA HDD
+* SATA SSD
+* NVMe SSD
+* USB Storage
+
+---
+
+### REQ-INS-007
+
+The Inspection Engine shall retrieve SMART health information for supported storage devices.
+
+---
+
+### REQ-INS-008
+
+The Inspection Engine shall report storage capacity and available free space.
+
+---
+
+### REQ-INS-009
+
+The Inspection Engine shall enumerate all network adapters.
+
+---
+
+### REQ-INS-010
+
+The Inspection Engine shall identify wired Ethernet interfaces.
+
+---
+
+### REQ-INS-011
+
+The Inspection Engine shall detect wireless networking interfaces.
+
+---
+
+### REQ-INS-012
+
+The Inspection Engine shall determine whether CPU virtualization support is available.
+
+---
+
+### REQ-INS-013
+
+The Inspection Engine shall determine whether virtualization support is currently enabled within firmware.
+
+---
+
+### REQ-INS-014
+
+The Inspection Engine shall detect UEFI firmware.
+
+---
+
+### REQ-INS-015
+
+The Inspection Engine shall determine Secure Boot status.
+
+---
+
+### REQ-INS-016
+
+The Inspection Engine shall retrieve system manufacturer information.
+
+---
+
+### REQ-INS-017
+
+The Inspection Engine shall retrieve model information.
+
+---
+
+### REQ-INS-018
+
+The Inspection Engine shall retrieve serial number information when available.
+
+---
+
+### REQ-INS-019
+
+The Inspection Engine shall retrieve BIOS or firmware version information.
+
+---
+
+### REQ-INS-020
+
+The Inspection Engine shall retrieve battery health information for supported portable systems.
+
+---
+
+### REQ-INS-021
+
+The Inspection Engine shall determine whether battery charge threshold configuration is supported.
+
+---
+
+### REQ-INS-022
+
+The Inspection Engine shall detect lid switch support on portable systems.
+
+---
+
+### REQ-INS-023
+
+The Inspection Engine shall detect supported firmware management interfaces.
+
+Examples include manufacturer-specific BIOS management capabilities.
+
+---
+
+### REQ-INS-024
+
+The Inspection Engine shall verify Ethernet link status.
+
+---
+
+### REQ-INS-025
+
+The Inspection Engine shall generate a hardware inspection report before any deployment workflow proceeds.
+
+---
+
+### REQ-INS-026
+
+The Inspection Engine shall not modify firmware, storage devices, operating system settings, or user data during inspection.
+
+---
+
+### REQ-INS-027
+
+Inspection results shall be made available to other Orion subsystems through documented interfaces.
+
+---
+
+### REQ-INS-028
+
+Inspection results shall be retained for the duration of the deployment session.
