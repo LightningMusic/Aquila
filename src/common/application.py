@@ -22,8 +22,6 @@ from __future__ import annotations
 from common.events.bus import EventBus
 from common.service_container import ServiceContainer
 from common.version import (
-    APPLICATION_NAME,
-    APPLICATION_VERSION,
     APPLICATION
 )
 
@@ -151,11 +149,11 @@ class Application:
 
     @property
     def name(self) -> str:
-        return APPLICATION_NAME
+        return APPLICATION.name
 
     @property
     def version(self) -> str:
-        return APPLICATION_VERSION
+        return APPLICATION.version
 
     # ------------------------------------------------------------------
     # Magic Methods
