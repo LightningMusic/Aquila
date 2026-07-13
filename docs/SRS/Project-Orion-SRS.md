@@ -1877,6 +1877,12 @@ Upon first successful boot, control shall automatically transfer to the Bootstra
 
 ---
 
+### REQ-PROV-021
+
+The Provisioning Engine shall utilize an unmodified, official Proxmox VE installation.
+
+---
+
 ## Acceptance Criteria
 
 The Provisioning Engine shall be considered compliant when it can:
