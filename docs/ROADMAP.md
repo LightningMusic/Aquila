@@ -1,6 +1,6 @@
-# Project Orion Development Roadmap (Version 2.0)
+# Project Aquila Development Roadmap (Version 2.0)
 
-**Project:** Project Orion
+**Project:** Project Aquila
 
 **Status:** Active Development
 
@@ -10,7 +10,7 @@
 
 # Philosophy
 
-Project Orion shall be developed from the foundation upward.
+Project Aquila shall be developed from the foundation upward.
 
 Each milestone must produce a working, testable application.
 
@@ -32,7 +32,7 @@ Every completed milestone shall:
 
 ### Goal
 
-Create the permanent Orion project structure.
+Create the permanent Aquila project structure.
 
 ### Deliverables
 
@@ -57,7 +57,7 @@ Create the permanent Orion project structure.
 
 ### Goal
 
-Build Orion's core application framework.
+Build Aquila's core application framework.
 
 ### Deliverables
 
@@ -73,7 +73,7 @@ Build Orion's core application framework.
 
 ### Exit Criteria
 
-* Orion starts successfully.
+* Aquila starts successfully.
 * Framework services initialize.
 * Dependency injection operational.
 
@@ -109,7 +109,7 @@ Build Orion's core application framework.
 
 ### Exit Criteria
 
-* All subsystems log through Orion logging.
+* All subsystems log through Aquila logging.
 
 ---
 
@@ -354,8 +354,8 @@ Every implementation shall:
 
 * Trace to an SRS requirement.
 * Follow the established architecture.
-* Use the Orion logging framework.
-* Use the Orion configuration framework.
+* Use the Aquila logging framework.
+* Use the Aquila configuration framework.
 * Register services through the Service Container.
 * Communicate through the Event Bus where appropriate.
 * Include error handling.
@@ -405,7 +405,7 @@ A task is complete only when:
 
 # Long-Term Vision
 
-Project Orion is intended to become a modular, enterprise-quality deployment platform capable of transforming retired hardware into managed Proxmox infrastructure with minimal operator effort.
+Project Aquila is intended to become a modular, enterprise-quality deployment platform capable of transforming retired hardware into managed Proxmox infrastructure with minimal operator effort.
 
 The guiding principle remains:
 

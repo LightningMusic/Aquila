@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Type
-
+from bios.providers.generic_uefi import GenericUEFIProvider
 from bios.detection import BIOSDetection
 from bios.firmware import FirmwareInformation
 

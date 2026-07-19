@@ -292,6 +292,15 @@ class DefaultBIOSProvider(BIOSProvider):
     # Battery
     # =========================================================
 
+    def get_charge_limit(self) -> int | None:
+        """
+        Returns the current battery charge limit.
+
+        Returns None if the firmware does not expose one.
+        """
+
+        return None
+
     def battery_settings_supported(self) -> bool:
         """
         Return whether battery firmware settings are

@@ -2,169 +2,904 @@
 Project Orion
 =============
 
-BIOS Battery Manager
+Battery Management
 
-Provides battery- and power-related firmware
-configuration for Project Orion.
+Provides battery discovery, health monitoring, and charge
+threshold management for Orion deployment nodes.
 
-This module is responsible for querying and
-configuring BIOS/UEFI battery settings where
-supported by the system firmware.
+Battery configuration is intentionally separated from the
+vendor BIOS providers so higher-level deployment workflows
+can use a single interface regardless of manufacturer.
 
-NOTE:
-Actual capabilities depend on the hardware vendor.
-Many consumer systems expose little or no programmatic
-firmware configuration.
+Individual BIOS providers expose firmware-specific battery
+controls, while BatteryManager coordinates detection,
+reporting, and policy.
 
 Author:
     Project Orion Development Team
-
-License:
-    MIT
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+import platform
+import subprocess
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
 from typing import Any
 
+from bios.bios_manager import BIOSManager
+
+logger = logging.getLogger(__name__)
+
+
+# ==========================================================
+# Battery Information
+# ==========================================================
 
 @dataclass(slots=True)
-class BatteryConfiguration:
+class BatteryInformation:
     """
-    Represents firmware battery settings.
-    """
+    Represents the current battery state.
 
-    ac_power_recovery: bool = False
-    battery_charge_limit: int | None = None
-    battery_health_mode: bool = False
-    adaptive_charging: bool = False
-    peak_shift_enabled: bool = False
-    wake_on_ac: bool = False
-
-
-class BIOSBatteryManager:
-    """
-    Manages battery-related BIOS/UEFI settings.
+    Most values are populated automatically from the OS.
+    Vendor-specific values may be supplied by BIOS providers.
     """
 
-    def __init__(self) -> None:
-        self._configuration = BatteryConfiguration()
+    manufacturer: str = "Unknown"
+    model: str = "Unknown"
+    serial_number: str = "Unknown"
 
-    # ---------------------------------------------------------
-    # Discovery
-    # ---------------------------------------------------------
+    chemistry: str = "Unknown"
 
-    def detect(self) -> BatteryConfiguration:
-        """
-        Detect current firmware battery settings.
+    design_capacity_mwh: int = 0
+    full_charge_capacity_mwh: int = 0
+    remaining_capacity_mwh: int = 0
 
-        Returns:
-            BatteryConfiguration
-        """
+    cycle_count: int = 0
 
-        #
-        # Vendor-specific implementation will be added
-        # in future versions.
-        #
+    voltage_mv: int = 0
 
-        return self._configuration
+    health_percent: float = 100.0
+    wear_percent: float = 0.0
 
-    # ---------------------------------------------------------
-    # Configuration
-    # ---------------------------------------------------------
+    charging: bool = False
+    ac_connected: bool = False
 
-    def configure(
+    battery_present: bool = False
+
+    charge_limit: int | None = None
+
+    manufacture_date: str = ""
+    first_seen: datetime = field(default_factory=datetime.utcnow)
+
+    additional_data: dict[str, Any] = field(default_factory=dict)
+
+
+# ==========================================================
+# Battery Manager
+# ==========================================================
+
+class BatteryManager:
+    """
+    Coordinates battery detection and management.
+
+    Responsibilities
+    ----------------
+
+    • Detect battery information
+    • Read battery health
+    • Configure charge thresholds
+    • Enable vendor battery health modes
+    • Export battery reports
+    """
+
+    def __init__(
         self,
-        configuration: BatteryConfiguration,
+        bios_manager: BIOSManager,
     ) -> None:
+
+        self._bios = bios_manager
+
+        self._battery = BatteryInformation()
+
+        logger.info(
+            "Battery Manager initialized."
+        )
+
+    # ======================================================
+    # Properties
+    # ======================================================
+
+    @property
+    def battery(self) -> BatteryInformation:
         """
-        Apply battery firmware configuration.
-
-        Currently a placeholder.
-        """
-
-        self._configuration = configuration
-
-    # ---------------------------------------------------------
-    # Individual Settings
-    # ---------------------------------------------------------
-
-    def enable_wake_on_ac(self) -> None:
-        """
-        Enable automatic boot when AC power is connected.
-        """
-
-        self._configuration.wake_on_ac = True
-
-    def disable_wake_on_ac(self) -> None:
-        """
-        Disable Wake-on-AC.
+        Returns the cached BatteryInformation object.
         """
 
-        self._configuration.wake_on_ac = False
+        return self._battery
 
-    def enable_health_mode(self) -> None:
+    @property
+    def bios(self) -> BIOSManager:
         """
-        Enable battery health mode.
-        """
-
-        self._configuration.battery_health_mode = True
-
-    def disable_health_mode(self) -> None:
-        """
-        Disable battery health mode.
+        Returns the BIOS manager used for firmware battery
+        configuration.
         """
 
-        self._configuration.battery_health_mode = False
+        return self._bios
+
+    # ======================================================
+    # Initialization
+    # ======================================================
+
+    def initialize(self) -> bool:
+        """
+        Detect battery information from the operating
+        system.
+        """
+
+        logger.info(
+            "Initializing battery detection..."
+        )
+
+        system = platform.system().lower()
+
+        if system == "windows":
+            return self._initialize_windows()
+
+        if system == "linux":
+            return self._initialize_linux()
+
+        logger.warning(
+            "Battery detection is not implemented for %s.",
+            system,
+        )
+
+        return False
+    
+    # ======================================================
+    # Windows Detection
+    # ======================================================
+
+    def _initialize_windows(self) -> bool:
+        """
+        Detect battery information on Windows.
+
+        Orion primarily uses the Windows battery report
+        generated by powercfg because it works across most
+        laptop vendors.
+        """
+
+        try:
+
+            report = (
+                Path.cwd()
+                / "reports"
+                / "battery-report.html"
+            )
+
+            report.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            subprocess.run(
+                [
+                    "powercfg",
+                    "/batteryreport",
+                    "/output",
+                    str(report),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            logger.info(
+                "Battery report generated: %s",
+                report,
+            )
+
+        except Exception:
+
+            logger.exception(
+                "Unable to generate Windows battery report."
+            )
+
+        try:
+
+            output = subprocess.check_output(
+                [
+                    "wmic",
+                    "path",
+                    "Win32_Battery",
+                    "get",
+                    "Name,DesignCapacity,EstimatedChargeRemaining,"
+                    "BatteryStatus",
+                    "/format:list",
+                ],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            )
+
+        except Exception:
+
+            logger.exception(
+                "Unable to query Win32_Battery."
+            )
+
+            return False
+
+        battery = self._battery
+
+        battery.battery_present = (
+            "BatteryStatus" in output
+        )
+
+        for line in output.splitlines():
+
+            if "=" not in line:
+                continue
+
+            key, value = line.split("=", 1)
+
+            key = key.strip()
+            value = value.strip()
+
+            if key == "Name":
+                battery.model = value or battery.model
+
+            elif key == "DesignCapacity":
+
+                try:
+                    battery.design_capacity_mwh = int(value)
+                except ValueError:
+                    pass
+
+            elif key == "EstimatedChargeRemaining":
+
+                try:
+
+                    percent = int(value)
+
+                    battery.remaining_capacity_mwh = percent
+
+                except ValueError:
+                    pass
+
+            elif key == "BatteryStatus":
+
+                battery.charging = value in (
+                    "2",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                )
+
+        battery.ac_connected = battery.charging
+
+        self._calculate_health()
+
+        return True
+
+    # ======================================================
+    # Linux Detection
+    # ======================================================
+
+    def _initialize_linux(self) -> bool:
+        """
+        Detect battery information using /sys/class/power_supply.
+        """
+
+        power_supply = Path(
+            "/sys/class/power_supply"
+        )
+
+        if not power_supply.exists():
+
+            logger.warning(
+                "Linux power_supply directory missing."
+            )
+
+            return False
+
+        battery_directory = None
+
+        for directory in power_supply.iterdir():
+
+            if directory.name.startswith("BAT"):
+
+                battery_directory = directory
+
+                break
+
+        if battery_directory is None:
+
+            logger.info(
+                "No battery detected."
+            )
+
+            return False
+
+        battery = self._battery
+
+        battery.battery_present = True
+
+        def read(name: str) -> str:
+
+            file = battery_directory / name
+
+            if not file.exists():
+                return ""
+
+            return file.read_text(
+                encoding="utf-8",
+                errors="ignore",
+            ).strip()
+
+        battery.manufacturer = (
+            read("manufacturer")
+            or battery.manufacturer
+        )
+
+        battery.model = (
+            read("model_name")
+            or battery.model
+        )
+
+        battery.serial_number = (
+            read("serial_number")
+            or battery.serial_number
+        )
+
+        battery.chemistry = (
+            read("technology")
+            or battery.chemistry
+        )
+
+        try:
+            battery.design_capacity_mwh = int(
+                read("energy_full_design")
+            )
+        except ValueError:
+            pass
+
+        try:
+            battery.full_charge_capacity_mwh = int(
+                read("energy_full")
+            )
+        except ValueError:
+            pass
+
+        try:
+            battery.remaining_capacity_mwh = int(
+                read("energy_now")
+            )
+        except ValueError:
+            pass
+
+        try:
+            battery.cycle_count = int(
+                read("cycle_count")
+            )
+        except ValueError:
+            pass
+
+        status = read("status").lower()
+
+        battery.charging = status == "charging"
+
+        battery.ac_connected = (
+            status in (
+                "charging",
+                "full",
+            )
+        )
+
+        self._calculate_health()
+
+        return True
+
+    # ======================================================
+    # Health Calculation
+    # ======================================================
+
+    def _calculate_health(self) -> None:
+        """
+        Computes battery health and wear level.
+        """
+
+        battery = self._battery
+
+        if (
+            battery.design_capacity_mwh <= 0
+            or battery.full_charge_capacity_mwh <= 0
+        ):
+
+            battery.health_percent = 100.0
+            battery.wear_percent = 0.0
+
+            return
+
+        battery.health_percent = round(
+            (
+                battery.full_charge_capacity_mwh
+                / battery.design_capacity_mwh
+            )
+            * 100.0,
+            2,
+        )
+
+        battery.wear_percent = round(
+            100.0 - battery.health_percent,
+            2,
+        )
+
+    # ======================================================
+    # Convenience Accessors
+    # ======================================================
+
+    def battery_present(self) -> bool:
+
+        return self._battery.battery_present
+
+    def charging(self) -> bool:
+
+        return self._battery.charging
+
+    def ac_connected(self) -> bool:
+
+        return self._battery.ac_connected
+
+    def cycle_count(self) -> int:
+
+        return self._battery.cycle_count
+
+    def health(self) -> float:
+
+        return self._battery.health_percent
+
+    def wear(self) -> float:
+
+        return self._battery.wear_percent
+    
+    # ======================================================
+    # Charge Threshold Management
+    # ======================================================
+
+    def charge_limit(self) -> int | None:
+        """
+        Returns the currently configured charge limit.
+        """
+
+        return self._battery.charge_limit
 
     def set_charge_limit(
         self,
         percent: int,
-    ) -> None:
+    ) -> bool:
         """
-        Configure maximum battery charge percentage.
+        Sets the firmware battery charge limit.
 
-        Raises:
-            ValueError
-                If percent is outside 50–100.
+        Orion recommends:
+            • 80% for always-on Proxmox nodes
+            • 100% for portable laptops
         """
 
-        if not 50 <= percent <= 100:
-            raise ValueError(
-                "Charge limit must be between 50 and 100."
+        if percent < 50 or percent > 100:
+
+            logger.error(
+                "Charge limit must be between 50 and 100 percent."
             )
 
-        self._configuration.battery_charge_limit = percent
+            return False
 
-    def enable_peak_shift(self) -> None:
+        if not self._bios.battery_settings_supported():
+
+            logger.warning(
+                "Battery charge thresholds are unsupported."
+            )
+
+            return False
+
+        logger.info(
+            "Setting battery charge limit to %d%%...",
+            percent,
+        )
+
+        result = self._bios.set_charge_limit(percent)
+
+        if result:
+
+            self._battery.charge_limit = percent
+
+            logger.info(
+                "Charge limit successfully updated."
+            )
+
+        else:
+
+            logger.warning(
+                "Firmware rejected the requested charge limit."
+            )
+
+        return result
+
+    # ======================================================
+    # Battery Health Mode
+    # ======================================================
+
+    def enable_battery_health_mode(self) -> bool:
         """
-        Enable Peak Shift if supported.
+        Enables the vendor's battery preservation mode.
         """
 
-        self._configuration.peak_shift_enabled = True
+        if not self._bios.battery_settings_supported():
 
-    def disable_peak_shift(self) -> None:
+            logger.warning(
+                "Battery health mode is unavailable."
+            )
+
+            return False
+
+        logger.info(
+            "Enabling battery health mode..."
+        )
+
+        return self._bios.enable_battery_health_mode()
+
+    def disable_battery_health_mode(self) -> bool:
         """
-        Disable Peak Shift.
+        Disables vendor battery health mode.
         """
 
-        self._configuration.peak_shift_enabled = False
+        if not self._bios.battery_settings_supported():
 
-    # ---------------------------------------------------------
-    # Export
-    # ---------------------------------------------------------
+            return False
 
-    def to_dict(self) -> dict[str, Any]:
+        logger.info(
+            "Disabling battery health mode..."
+        )
+
+        return self._bios.disable_battery_health_mode()
+
+    # ======================================================
+    # Orion Deployment Profiles
+    # ======================================================
+
+    def apply_server_profile(self) -> bool:
         """
-        Return configuration as a dictionary.
+        Applies Orion's recommended battery settings for
+        permanently powered Proxmox nodes.
         """
+
+        logger.info(
+            "Applying Orion Server battery profile..."
+        )
+
+        success = True
+
+        success &= self.enable_battery_health_mode()
+
+        success &= self.set_charge_limit(80)
+
+        return success
+
+    def apply_portable_profile(self) -> bool:
+        """
+        Applies settings appropriate for a portable laptop.
+        """
+
+        logger.info(
+            "Applying Orion Portable battery profile..."
+        )
+
+        success = True
+
+        self.disable_battery_health_mode()
+
+        success &= self.set_charge_limit(100)
+
+        return success
+
+    def apply_storage_profile(self) -> bool:
+        """
+        Battery profile for long-term storage.
+
+        Intended for spare deployment nodes.
+        """
+
+        logger.info(
+            "Applying Orion Storage battery profile..."
+        )
+
+        success = True
+
+        success &= self.enable_battery_health_mode()
+
+        success &= self.set_charge_limit(60)
+
+        return success
+
+    # ======================================================
+    # Firmware Integration
+    # ======================================================
+
+    def synchronize_with_bios(self) -> bool:
+        """
+        Refreshes the cached battery configuration from the
+        BIOS manager.
+        """
+
+        logger.info(
+            "Synchronizing battery information with BIOS..."
+        )
+
+        if not self._bios.battery_settings_supported():
+
+            logger.info(
+                "Firmware battery management unavailable."
+            )
+
+            return False
+
+        try:
+
+            self._battery.charge_limit = (
+                self._bios.provider.get_charge_limit()
+            )
+
+        except Exception:
+
+            logger.exception(
+                "Unable to synchronize charge limit."
+            )
+
+            return False
+
+        return True
+
+    def firmware_supported(self) -> bool:
+        """
+        Returns True if firmware-level battery management
+        is available.
+        """
+
+        return self._bios.battery_settings_supported()
+
+    def firmware_provider(self) -> str:
+        """
+        Returns the BIOS provider currently responsible for
+        firmware battery management.
+        """
+
+        return self._bios.provider_name()
+
+    # ======================================================
+    # Deployment Helpers
+    # ======================================================
+
+    def prepare_for_proxmox(self) -> bool:
+        """
+        Applies Orion's recommended battery configuration
+        before a machine becomes a permanent Proxmox node.
+        """
+
+        logger.info(
+            "Preparing battery configuration for Proxmox..."
+        )
+
+        return self.apply_server_profile()
+    
+    # ======================================================
+    # Validation
+    # ======================================================
+
+    def validate(self) -> bool:
+        """
+        Performs a basic validation of the detected battery.
+
+        Returns
+        -------
+        bool
+            True if the detected battery information appears
+            internally consistent.
+        """
+
+        battery = self._battery
+
+        if not battery.battery_present:
+
+            logger.info(
+                "No battery detected."
+            )
+
+            return False
+
+        if battery.design_capacity_mwh < 0:
+
+            logger.warning(
+                "Invalid design capacity detected."
+            )
+
+            return False
+
+        if battery.full_charge_capacity_mwh < 0:
+
+            logger.warning(
+                "Invalid full charge capacity detected."
+            )
+
+            return False
+
+        if battery.remaining_capacity_mwh < 0:
+
+            logger.warning(
+                "Invalid remaining capacity detected."
+            )
+
+            return False
+
+        return True
+
+    # ======================================================
+    # Reporting
+    # ======================================================
+
+    def report(self) -> dict[str, Any]:
+        """
+        Returns a complete battery report suitable for
+        deployment logs and Orion reporting.
+        """
+
+        battery = self._battery
 
         return {
-            "ac_power_recovery": self._configuration.ac_power_recovery,
-            "battery_charge_limit": self._configuration.battery_charge_limit,
-            "battery_health_mode": self._configuration.battery_health_mode,
-            "adaptive_charging": self._configuration.adaptive_charging,
-            "peak_shift_enabled": self._configuration.peak_shift_enabled,
-            "wake_on_ac": self._configuration.wake_on_ac,
+            "battery_present": battery.battery_present,
+            "manufacturer": battery.manufacturer,
+            "model": battery.model,
+            "serial_number": battery.serial_number,
+            "chemistry": battery.chemistry,
+            "design_capacity_mwh": battery.design_capacity_mwh,
+            "full_charge_capacity_mwh": battery.full_charge_capacity_mwh,
+            "remaining_capacity_mwh": battery.remaining_capacity_mwh,
+            "cycle_count": battery.cycle_count,
+            "health_percent": battery.health_percent,
+            "wear_percent": battery.wear_percent,
+            "voltage_mv": battery.voltage_mv,
+            "charging": battery.charging,
+            "ac_connected": battery.ac_connected,
+            "charge_limit": battery.charge_limit,
+            "firmware_supported": self.firmware_supported(),
+            "firmware_provider": self.firmware_provider(),
+            "additional_data": dict(battery.additional_data),
         }
+
+    def information_dict(self) -> dict[str, Any]:
+        """
+        Alias for report().
+
+        Used throughout Orion to keep manager APIs
+        consistent.
+        """
+
+        return self.report()
+
+    # ======================================================
+    # Export
+    # ======================================================
+
+    def export(self) -> dict[str, Any]:
+        """
+        Export battery information for serialization.
+        """
+
+        logger.info(
+            "Exporting battery information..."
+        )
+
+        return self.report()
+
+    # ======================================================
+    # Refresh
+    # ======================================================
+
+    def refresh(self) -> bool:
+        """
+        Refreshes the cached battery information by running
+        detection again.
+        """
+
+        logger.info(
+            "Refreshing battery information..."
+        )
+
+        return self.initialize()
+
+    # ======================================================
+    # Reset
+    # ======================================================
+
+    def reset(self) -> None:
+        """
+        Clears cached battery information.
+        """
+
+        logger.info(
+            "Resetting Battery Manager..."
+        )
+
+        self._battery = BatteryInformation()
+
+    # ======================================================
+    # Helper Methods
+    # ======================================================
+
+    def battery_age_known(self) -> bool:
+
+        return bool(self._battery.manufacture_date)
+
+    def healthy(self) -> bool:
+        """
+        Orion considers batteries at or above 80% health
+        suitable for continuous deployment.
+        """
+
+        return self._battery.health_percent >= 80.0
+
+    def worn(self) -> bool:
+        """
+        Returns True if the battery has significant wear.
+        """
+
+        return self._battery.wear_percent >= 20.0
+
+    def needs_replacement(self) -> bool:
+        """
+        Determines whether the battery should be replaced
+        before the laptop is used as a long-term server
+        node.
+        """
+
+        return (
+            self._battery.health_percent < 60.0
+            or self._battery.cycle_count >= 1000
+        )
+
+    def summary(self) -> str:
+        """
+        Returns a concise human-readable summary.
+        """
+
+        battery = self._battery
+
+        if not battery.battery_present:
+            return "No battery detected."
+
+        return (
+            f"{battery.manufacturer} "
+            f"{battery.model} | "
+            f"{battery.health_percent:.1f}% health | "
+            f"{battery.cycle_count} cycles | "
+            f"{battery.charge_limit if battery.charge_limit is not None else 'No'}% limit"
+        )
+
+    # ======================================================
+    # String Representation
+    # ======================================================
+
+    def __repr__(self) -> str:
+
+        return (
+            f"{self.__class__.__name__}("
+            f"manufacturer={self._battery.manufacturer!r}, "
+            f"model={self._battery.model!r}, "
+            f"health={self._battery.health_percent:.1f}%, "
+            f"cycles={self._battery.cycle_count})"
+        )
+
+    def __str__(self) -> str:
+
+        return self.summary()

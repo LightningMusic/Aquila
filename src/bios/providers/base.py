@@ -194,6 +194,12 @@ class BIOSProvider(ABC):
         Enable Intel VT-x or AMD-V.
         """
 
+    @abstractmethod
+    def disable_virtualization(self) -> bool:
+        """
+        Disable CPU virtualization.
+        """
+
     # =========================================================
     # IOMMU / VT-d / AMD-Vi
     # =========================================================
@@ -216,6 +222,33 @@ class BIOSProvider(ABC):
         Enable IOMMU.
         """
 
+    @abstractmethod
+    def disable_iommu(self) -> bool:
+        """
+        Disable IOMMU.
+        """
+    # =========================================================
+    # SR-IOV
+    # =========================================================
+
+    @abstractmethod
+    def sriov_supported(self) -> bool:
+        """
+        Return whether SR-IOV is supported.
+        """
+
+    @abstractmethod
+    def enable_sriov(self) -> bool:
+        """
+        Enable SR-IOV.
+        """
+
+    @abstractmethod
+    def disable_sriov(self) -> bool:
+        """
+        Disable SR-IOV.
+        """
+        
     # =========================================================
     # Secure Boot
     # =========================================================
@@ -264,6 +297,12 @@ class BIOSProvider(ABC):
     def enable_tpm(self) -> bool:
         """
         Enable TPM.
+        """
+
+    @abstractmethod
+    def disable_tpm(self) -> bool:
+        """
+        Disable TPM.
         """
 
     # =========================================================
@@ -337,6 +376,15 @@ class BIOSProvider(ABC):
     # =========================================================
     # Battery
     # =========================================================
+    
+    def get_charge_limit(self) -> int | None:
+        """
+        Returns the current battery charge limit.
+
+        Returns None if the firmware does not expose one.
+        """
+
+        return None
 
     @abstractmethod
     def battery_settings_supported(self) -> bool:
@@ -365,6 +413,7 @@ class BIOSProvider(ABC):
         """
         Disable battery health mode.
         """
+
 
     # =========================================================
     # Thermal

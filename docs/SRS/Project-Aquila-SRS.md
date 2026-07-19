@@ -1,10 +1,10 @@
-# Project Orion
+# Project Aquila
 
 ## Software Requirements Specification (SRS)
 
 ---
 
-**Document ID:** ORION-SRS
+**Document ID:** Aquila-SRS
 
 **Version:** 0.3.0
 
@@ -47,11 +47,11 @@
 
 ## 1.1 Purpose
 
-Project Orion is a zero-touch infrastructure provisioning platform designed to automate the conversion of surplus and commodity computer hardware into managed virtualization infrastructure.
+Project Aquila is a zero-touch infrastructure provisioning platform designed to automate the conversion of surplus and commodity computer hardware into managed virtualization infrastructure.
 
 The project exists to eliminate repetitive deployment work while maintaining strict operator oversight for irreversible operations such as storage sanitization.
 
-This document serves as the authoritative engineering specification for the Orion project.
+This document serves as the authoritative engineering specification for the Aquila project.
 
 No production feature shall be implemented before its behavior has been documented within this Software Requirements Specification.
 
@@ -65,13 +65,13 @@ Many organizations—and home lab operators—acquire large quantities of retire
 
 Preparing these systems manually is slow, error-prone, inconsistent, and difficult to reproduce.
 
-Project Orion was conceived to standardize this process through automation while preserving operator control over destructive actions.
+Project Aquila was conceived to standardize this process through automation while preserving operator control over destructive actions.
 
 ---
 
 ## 1.3 Project Mission
 
-Project Orion exists to provide a safe, repeatable, operator-supervised provisioning platform for converting commodity computer hardware into managed Proxmox cluster resources.
+Project Aquila exists to provide a safe, repeatable, operator-supervised provisioning platform for converting commodity computer hardware into managed Proxmox cluster resources.
 
 The system shall minimize technician effort while maximizing deployment consistency, operational safety, and long-term maintainability.
 
@@ -79,11 +79,11 @@ The system shall minimize technician effort while maximizing deployment consiste
 
 # 2. Project Overview
 
-Project Orion is not an operating system.
+Project Aquila is not an operating system.
 
-Project Orion is not a replacement for Proxmox.
+Project Aquila is not a replacement for Proxmox.
 
-Project Orion is an automated deployment platform responsible for preparing hardware for use within a Proxmox virtualization cluster.
+Project Aquila is an automated deployment platform responsible for preparing hardware for use within a Proxmox virtualization cluster.
 
 The project provides tooling for:
 
@@ -102,15 +102,15 @@ The deployment environment is distributed using bootable USB media.
 
 The USB serves only as the deployment medium.
 
-The Orion source code, documentation, build system, release process, and version control are maintained independently within the project's source repository.
+The Aquila source code, documentation, build system, release process, and version control are maintained independently within the project's source repository.
 
 ---
 
 # 3. Vision
 
-The long-term vision of Project Orion is to allow a technician to transform supported computer hardware into production-ready virtualization resources using a standardized, repeatable deployment workflow.
+The long-term vision of Project Aquila is to allow a technician to transform supported computer hardware into production-ready virtualization resources using a standardized, repeatable deployment workflow.
 
-When complete, Orion shall require minimal technician interaction after deployment has been authorized.
+When complete, Aquila shall require minimal technician interaction after deployment has been authorized.
 
 The deployment experience should resemble enterprise device provisioning platforms while remaining fully self-hosted and optimized for Proxmox environments.
 
@@ -120,7 +120,7 @@ The system shall scale from individual laboratory deployments to clusters consis
 
 # 4. Project Goals
 
-Project Orion has the following primary objectives.
+Project Aquila has the following primary objectives.
 
 ## G-001
 
@@ -197,7 +197,7 @@ Support future expansion through a modular software architecture.
 
 # 5. Project Scope
 
-Version 1.0 of Project Orion includes the following major capabilities.
+Version 1.0 of Project Aquila includes the following major capabilities.
 
 ## Included
 
@@ -258,7 +258,7 @@ The document assumes familiarity with Linux, virtualization, networking, and sof
 
 ## Technician
 
-The individual responsible for operating Orion.
+The individual responsible for operating Aquila.
 
 ---
 
@@ -270,13 +270,13 @@ The interactive application launched from the deployment environment.
 
 ## Deployment Controller
 
-The centralized service responsible for approving, configuring, registering, and provisioning new Orion nodes.
+The centralized service responsible for approving, configuring, registering, and provisioning new Aquila nodes.
 
 ---
 
 ## Node
 
-A successfully deployed Proxmox system managed by Orion.
+A successfully deployed Proxmox system managed by Aquila.
 
 ---
 
@@ -318,7 +318,7 @@ The database of deployed systems maintained by the Deployment Controller.
 
 ## Deployment Session
 
-The complete lifecycle beginning when Orion is launched and ending when deployment either succeeds or terminates.
+The complete lifecycle beginning when Aquila is launched and ending when deployment either succeeds or terminates.
 
 ---
 
@@ -340,7 +340,7 @@ Automation shall never perform irreversible actions without explicit operator au
 
 Operator Supervision
 
-Orion automates work.
+Aquila automates work.
 
 Technicians authorize irreversible decisions.
 
@@ -394,7 +394,7 @@ Hardware Preservation
 
 Supported hardware shall be configured to maximize long-term reliability.
 
-Where technically possible Orion shall:
+Where technically possible Aquila shall:
 
 * Prevent suspend on lid closure.
 * Configure supported battery charging thresholds.
@@ -431,7 +431,7 @@ The Software Requirements Specification is the authoritative definition of proje
 
 ## 9.1 Overview
 
-Project Orion shall be implemented as a modular software platform composed of independent subsystems, each responsible for a single area of functionality.
+Project Aquila shall be implemented as a modular software platform composed of independent subsystems, each responsible for a single area of functionality.
 
 The architecture shall prioritize:
 
@@ -450,7 +450,7 @@ No subsystem shall assume internal implementation details of another subsystem.
 
 ## 9.2 High-Level System Architecture
 
-Project Orion consists of four primary components.
+Project Aquila consists of four primary components.
 
 ```
                 +---------------------------+
@@ -502,7 +502,7 @@ Project Orion consists of four primary components.
 
 # 9.3 Repository Layout
 
-The Project Orion repository is the authoritative source for all project artifacts.
+The Project Aquila repository is the authoritative source for all project artifacts.
 
 The repository shall contain:
 
@@ -521,7 +521,7 @@ The deployment USB shall be generated from the repository during the release pro
 
 # 9.4 Deployment Media
 
-The Orion deployment USB is a release artifact.
+The Aquila deployment USB is a release artifact.
 
 It is not the development environment.
 
@@ -529,7 +529,7 @@ It is not the source repository.
 
 The USB shall contain only the components necessary to execute deployment workflows.
 
-Development shall occur exclusively within the Project Orion repository.
+Development shall occur exclusively within the Project Aquila repository.
 
 ---
 
@@ -567,11 +567,11 @@ Upon completion, the device contains no recoverable customer data.
 
 ## Workflow B
 
-### Orion Node Provisioning
+### Aquila Node Provisioning
 
 Purpose:
 
-Transform prepared hardware into a managed Orion node.
+Transform prepared hardware into a managed Aquila node.
 
 Primary responsibilities:
 
@@ -631,7 +631,7 @@ The Deployment Controller shall act as the authoritative source for node identit
 
 # 9.8 Configuration System
 
-Project Orion shall utilize a centralized configuration system.
+Project Aquila shall utilize a centralized configuration system.
 
 Configuration shall be stored separately from application logic.
 
@@ -689,7 +689,7 @@ Future versions may extend the inventory schema without affecting existing deplo
 
 # 9.11 Benchmark System
 
-Following successful deployment, Orion shall evaluate node performance.
+Following successful deployment, Aquila shall evaluate node performance.
 
 Benchmarking shall include:
 
@@ -705,7 +705,7 @@ Benchmark results shall be submitted to the Deployment Controller.
 
 # 9.12 Hardware Configuration
 
-During provisioning, Orion shall configure supported hardware and operating system settings to improve long-term operational reliability.
+During provisioning, Aquila shall configure supported hardware and operating system settings to improve long-term operational reliability.
 
 Examples include:
 
@@ -714,7 +714,7 @@ Examples include:
 * Configuring power recovery behavior.
 * Applying operating system power management policies.
 
-Where firmware interfaces are unavailable, Orion shall record the limitation and continue deployment when safe.
+Where firmware interfaces are unavailable, Aquila shall record the limitation and continue deployment when safe.
 
 ---
 
@@ -722,7 +722,7 @@ Where firmware interfaces are unavailable, Orion shall record the limitation and
 
 Workflow B requires Ethernet connectivity.
 
-Prior to deployment Orion shall verify:
+Prior to deployment Aquila shall verify:
 
 * Physical Ethernet link
 * IP address assignment
@@ -750,7 +750,7 @@ Operator approval shall be obtained through the Technician Console.
 
 # 9.15 Build System
 
-Project Orion shall be developed independently of deployment media.
+Project Aquila shall be developed independently of deployment media.
 
 The build system shall:
 
@@ -768,7 +768,7 @@ The build system shall not require manual modification of deployment files.
 
 ## 10.1 Overview
 
-Project Orion is composed of independent software subsystems.
+Project Aquila is composed of independent software subsystems.
 
 Each subsystem is responsible for a single area of functionality and communicates with other subsystems through well-defined interfaces.
 
@@ -778,7 +778,7 @@ Subsystems shall remain as independent as practical to simplify maintenance, tes
 
 ## 10.2 Technician Console
 
-The Technician Console is the primary user interface of Project Orion.
+The Technician Console is the primary user interface of Project Aquila.
 
 Responsibilities include:
 
@@ -932,7 +932,7 @@ Benchmark results shall be submitted to the Deployment Controller.
 
 ## 10.11 Configuration Engine
 
-The Configuration Engine loads, validates, and distributes Orion configuration.
+The Configuration Engine loads, validates, and distributes Aquila configuration.
 
 Responsibilities include:
 
@@ -958,7 +958,7 @@ Responsibilities include:
 * Deployment history
 * Diagnostic information
 
-All Orion subsystems shall utilize the Logging Engine.
+All Aquila subsystems shall utilize the Logging Engine.
 
 ---
 
@@ -980,7 +980,7 @@ Provisioning shall not proceed unless networking requirements have been satisfie
 
 ## 10.14 Build System
 
-The Build System produces Orion release artifacts.
+The Build System produces Aquila release artifacts.
 
 Responsibilities include:
 
@@ -1030,13 +1030,13 @@ Inventory + Benchmark
 
 Each subsystem shall expose clearly defined interfaces and shall avoid unnecessary coupling to other subsystems.
 
-Future Orion releases may introduce additional components without modifying existing subsystem responsibilities.
+Future Aquila releases may introduce additional components without modifying existing subsystem responsibilities.
 
 # 11. Functional Requirements
 
 ## 11.1 Requirement Conventions
 
-Every functional requirement within Project Orion shall be assigned a unique identifier.
+Every functional requirement within Project Aquila shall be assigned a unique identifier.
 
 Requirement identifiers follow the format:
 
@@ -1060,7 +1060,7 @@ Each requirement shall be independently testable.
 
 ## Overview
 
-The Technician Console is the primary interface presented to the technician throughout every Orion deployment session.
+The Technician Console is the primary interface presented to the technician throughout every Aquila deployment session.
 
 The Technician Console is responsible for coordinating deployment workflows while maintaining operator awareness and control.
 
@@ -1068,13 +1068,13 @@ The Technician Console is responsible for coordinating deployment workflows whil
 
 ### REQ-TC-001
 
-The Technician Console shall launch automatically after the Orion deployment environment has booted successfully.
+The Technician Console shall launch automatically after the Aquila deployment environment has booted successfully.
 
 ---
 
 ### REQ-TC-002
 
-The Technician Console shall display the current Orion software version.
+The Technician Console shall display the current Aquila software version.
 
 ---
 
@@ -1104,7 +1104,7 @@ The Technician Console shall provide access to the Device Retirement workflow.
 
 ### REQ-TC-007
 
-The Technician Console shall provide access to the Orion Node Provisioning workflow.
+The Technician Console shall provide access to the Aquila Node Provisioning workflow.
 
 ---
 
@@ -1321,7 +1321,7 @@ The Inspection Engine shall not modify firmware, storage devices, operating syst
 
 ### REQ-INS-027
 
-Inspection results shall be made available to other Orion subsystems through documented interfaces.
+Inspection results shall be made available to other Aquila subsystems through documented interfaces.
 
 ---
 
@@ -1532,7 +1532,7 @@ The Recovery Engine shall be considered compliant when it can:
 
 The Preparation Engine is responsible for preparing storage devices for reuse through secure storage sanitization.
 
-Preparation is the first destructive stage of the Orion deployment process.
+Preparation is the first destructive stage of the Aquila deployment process.
 
 No storage modifications shall occur until all required operator confirmations have been completed.
 
@@ -1628,7 +1628,7 @@ If storage identity cannot be verified, sanitization shall not begin.
 
 ### REQ-PREP-012
 
-The Preparation Engine shall prevent accidental selection of Orion deployment media.
+The Preparation Engine shall prevent accidental selection of Aquila deployment media.
 
 The deployment USB shall never be eligible for sanitization.
 
@@ -1667,7 +1667,7 @@ The Preparation Engine shall report estimated completion time whenever practical
 
 ### REQ-PREP-017
 
-Upon completion, Orion shall verify that sanitization completed successfully.
+Upon completion, Aquila shall verify that sanitization completed successfully.
 
 ---
 
@@ -1712,7 +1712,7 @@ The Preparation Engine shall immediately halt if unrecoverable storage errors ar
 
 ### REQ-PREP-023
 
-Following successful sanitization, Orion shall mark the system as eligible for provisioning.
+Following successful sanitization, Aquila shall mark the system as eligible for provisioning.
 
 ---
 
@@ -1787,13 +1787,13 @@ The Provisioning Engine shall verify successful completion of the installation p
 
 ### REQ-PROV-007
 
-The Provisioning Engine shall install all required Orion bootstrap components.
+The Provisioning Engine shall install all required Aquila bootstrap components.
 
 ---
 
 ### REQ-PROV-008
 
-The Provisioning Engine shall install all software dependencies required by Orion.
+The Provisioning Engine shall install all software dependencies required by Aquila.
 
 ---
 
@@ -1817,7 +1817,7 @@ The Provisioning Engine shall generate an installation summary upon completion.
 
 ### REQ-PROV-012
 
-If installation fails, Orion shall preserve diagnostic information for troubleshooting.
+If installation fails, Aquila shall preserve diagnostic information for troubleshooting.
 
 ---
 
@@ -1889,7 +1889,7 @@ The Provisioning Engine shall be considered compliant when it can:
 
 * Install Proxmox VE without manual intervention.
 * Produce a bootable system.
-* Install Orion bootstrap components.
+* Install Aquila bootstrap components.
 * Preserve installation logs.
 * Automatically transition to the Bootstrap Engine following the first successful boot.
 
@@ -1901,7 +1901,7 @@ The Provisioning Engine is responsible for transforming prepared hardware into a
 
 Provisioning begins only after the Preparation Engine has successfully completed and the technician has explicitly approved deployment.
 
-Once provisioning begins, Orion shall automate as much of the deployment process as safely possible.
+Once provisioning begins, Aquila shall automate as much of the deployment process as safely possible.
 
 ---
 
@@ -1951,7 +1951,7 @@ If minimum deployment requirements are not satisfied, provisioning shall termina
 
 ### REQ-PROV-007
 
-The Provisioning Engine shall partition the deployment storage device according to Orion configuration.
+The Provisioning Engine shall partition the deployment storage device according to Aquila configuration.
 
 ---
 
@@ -1963,7 +1963,7 @@ The Provisioning Engine shall install Proxmox Virtual Environment.
 
 ### REQ-PROV-009
 
-The Provisioning Engine shall install all required Orion software components.
+The Provisioning Engine shall install all required Aquila software components.
 
 ---
 
@@ -2029,7 +2029,7 @@ The Provisioning Engine shall generate a provisioning report.
 
 ### REQ-PROV-020
 
-If provisioning fails, Orion shall preserve diagnostic information for troubleshooting.
+If provisioning fails, Aquila shall preserve diagnostic information for troubleshooting.
 
 ---
 
@@ -2058,7 +2058,7 @@ The Provisioning Engine shall be considered compliant when it can:
 
 The Bootstrap Engine executes automatically after the first successful boot of the newly provisioned Proxmox system.
 
-Bootstrap is responsible for converting a freshly installed operating system into a production-ready Orion node.
+Bootstrap is responsible for converting a freshly installed operating system into a production-ready Aquila node.
 
 Bootstrap shall execute without technician intervention whenever possible.
 
@@ -2102,7 +2102,7 @@ The Bootstrap Engine shall install authorized SSH keys supplied by the Deploymen
 
 ### REQ-BOOT-007
 
-The Bootstrap Engine shall configure operating system power management according to Orion deployment policy.
+The Bootstrap Engine shall configure operating system power management according to Aquila deployment policy.
 
 ---
 
@@ -2120,7 +2120,7 @@ The Bootstrap Engine shall attempt to configure supported firmware battery charg
 
 ### REQ-BOOT-010
 
-If battery threshold configuration is unsupported, Orion shall log the limitation and continue deployment.
+If battery threshold configuration is unsupported, Aquila shall log the limitation and continue deployment.
 
 ---
 
@@ -2144,7 +2144,7 @@ The Bootstrap Engine shall verify successful cluster enrollment.
 
 ### REQ-BOOT-014
 
-The Bootstrap Engine shall register the node with the Orion Inventory System.
+The Bootstrap Engine shall register the node with the Aquila Inventory System.
 
 ---
 
@@ -2201,11 +2201,11 @@ The Bootstrap Engine shall be considered compliant when it can:
 
 ## Overview
 
-The Deployment Controller is the centralized management service responsible for coordinating, authorizing, configuring, and registering Orion deployments.
+The Deployment Controller is the centralized management service responsible for coordinating, authorizing, configuring, and registering Aquila deployments.
 
 The Deployment Controller shall function as the authoritative source for deployment configuration, node identity, inventory, deployment policy, and provisioning metadata.
 
-The Deployment Controller shall operate independently of deployment media and shall remain continuously available within the Orion infrastructure.
+The Deployment Controller shall operate independently of deployment media and shall remain continuously available within the Aquila infrastructure.
 
 ---
 
@@ -2223,7 +2223,7 @@ The Deployment Controller shall uniquely identify every node requesting deployme
 
 ### REQ-CTRL-003
 
-The Deployment Controller shall assign a unique Orion Node Identifier.
+The Deployment Controller shall assign a unique Aquila Node Identifier.
 
 ---
 
@@ -2333,7 +2333,7 @@ The Deployment Controller shall support future expansion without requiring modif
 
 ### REQ-CTRL-019
 
-The Deployment Controller shall log all communications with Orion nodes.
+The Deployment Controller shall log all communications with Aquila nodes.
 
 ---
 
@@ -2345,7 +2345,7 @@ The Deployment Controller shall support secure communication channels.
 
 ### REQ-CTRL-021
 
-The Deployment Controller shall expose a documented API for Orion components.
+The Deployment Controller shall expose a documented API for Aquila components.
 
 ---
 
@@ -2366,7 +2366,7 @@ The Deployment Controller shall be considered compliant when it can:
 
 ## Overview
 
-The Inventory System maintains a complete record of every Orion-managed node throughout its operational lifecycle.
+The Inventory System maintains a complete record of every Aquila-managed node throughout its operational lifecycle.
 
 Inventory information shall remain centralized within the Deployment Controller.
 
@@ -2382,7 +2382,7 @@ The Inventory System shall create an inventory record for every successfully dep
 
 Inventory records shall contain, at minimum:
 
-* Orion Node Identifier
+* Aquila Node Identifier
 * Hostname
 * Manufacturer
 * Model
@@ -2470,7 +2470,7 @@ The Inventory System shall be considered compliant when it can:
 
 ## Overview
 
-Following successful deployment, Orion shall evaluate node performance to establish a baseline for future comparison.
+Following successful deployment, Aquila shall evaluate node performance to establish a baseline for future comparison.
 
 Benchmarking shall occur automatically after successful Bootstrap.
 
@@ -2552,9 +2552,9 @@ The Benchmark Engine shall be considered compliant when it can:
 
 ## Overview
 
-The Networking Engine provides network connectivity for Orion deployments and operational communications.
+The Networking Engine provides network connectivity for Aquila deployments and operational communications.
 
-Networking is required for Orion Node Provisioning but is not required for the Device Retirement workflow.
+Networking is required for Aquila Node Provisioning but is not required for the Device Retirement workflow.
 
 The Networking Engine shall verify connectivity before allowing network-dependent deployment stages to begin.
 
@@ -2628,13 +2628,13 @@ The Networking Engine shall verify communication with the target Proxmox cluster
 
 ### REQ-NET-011
 
-If network connectivity is lost during provisioning, Orion shall pause deployment and attempt recovery when practical.
+If network connectivity is lost during provisioning, Aquila shall pause deployment and attempt recovery when practical.
 
 ---
 
 ### REQ-NET-012
 
-If communication cannot be restored, Orion shall terminate provisioning safely and preserve diagnostic information.
+If communication cannot be restored, Aquila shall terminate provisioning safely and preserve diagnostic information.
 
 ---
 
@@ -2665,7 +2665,7 @@ The Networking Engine shall be considered compliant when it can:
 
 ## Overview
 
-Project Orion shall utilize a centralized configuration system.
+Project Aquila shall utilize a centralized configuration system.
 
 Configuration shall define deployment behavior without requiring modification of application source code.
 
@@ -2759,7 +2759,7 @@ Configuration shall support future expansion without invalidating existing confi
 
 ### REQ-CONF-015
 
-The Configuration Engine shall provide validated configuration data to authorized Orion subsystems.
+The Configuration Engine shall provide validated configuration data to authorized Aquila subsystems.
 
 ---
 
@@ -2770,14 +2770,14 @@ The Configuration Engine shall be considered compliant when it can:
 * Load configuration files.
 * Validate configuration.
 * Reject invalid configuration.
-* Distribute configuration to Orion subsystems.
+* Distribute configuration to Aquila subsystems.
 * Maintain configuration compatibility across supported versions.
 
 # 11.13 Logging Requirements
 
 ## Overview
 
-The Logging Engine provides centralized event recording for every Orion subsystem.
+The Logging Engine provides centralized event recording for every Aquila subsystem.
 
 Logs are intended to support troubleshooting, deployment auditing, diagnostics, and future analytics.
 
@@ -2787,7 +2787,7 @@ Every significant system event shall be recorded through the Logging Engine.
 
 ### REQ-LOG-001
 
-The Logging Engine shall provide a centralized logging interface for all Orion subsystems.
+The Logging Engine shall provide a centralized logging interface for all Aquila subsystems.
 
 ---
 
@@ -2902,17 +2902,17 @@ The Logging Engine shall be considered compliant when it can:
 
 ## Overview
 
-Security is a foundational design principle of Project Orion.
+Security is a foundational design principle of Project Aquila.
 
-All Orion components shall be designed according to the principles of least privilege, defense in depth, secure defaults, and explicit authorization.
+All Aquila components shall be designed according to the principles of least privilege, defense in depth, secure defaults, and explicit authorization.
 
-Security requirements apply to every subsystem within the Orion ecosystem.
+Security requirements apply to every subsystem within the Aquila ecosystem.
 
 ---
 
 ### REQ-SEC-001
 
-All communication between Orion nodes and the Deployment Controller shall occur over encrypted channels.
+All communication between Aquila nodes and the Deployment Controller shall occur over encrypted channels.
 
 ---
 
@@ -2924,7 +2924,7 @@ The Deployment Controller shall authenticate every node prior to accepting deplo
 
 ### REQ-SEC-003
 
-Every Orion node shall possess a unique identity assigned by the Deployment Controller.
+Every Aquila node shall possess a unique identity assigned by the Deployment Controller.
 
 ---
 
@@ -3010,7 +3010,7 @@ Future authentication providers shall be supportable without requiring architect
 
 The Security subsystem shall be considered compliant when it can:
 
-* Authenticate Orion nodes.
+* Authenticate Aquila nodes.
 * Secure communications.
 * Protect deployment credentials.
 * Reject unauthorized deployments.
@@ -3021,9 +3021,9 @@ The Security subsystem shall be considered compliant when it can:
 
 ## 12.1 Overview
 
-Non-functional requirements define the quality attributes expected of Project Orion.
+Non-functional requirements define the quality attributes expected of Project Aquila.
 
-Unlike functional requirements, these requirements describe *how well* Orion performs rather than *what* Orion does.
+Unlike functional requirements, these requirements describe *how well* Aquila performs rather than *what* Aquila does.
 
 ---
 
@@ -3083,7 +3083,7 @@ Deployment reports shall clearly identify the last successfully completed stage.
 
 ### NFR-MAIN-001
 
-Project Orion shall utilize a modular software architecture.
+Project Aquila shall utilize a modular software architecture.
 
 ---
 
@@ -3115,7 +3115,7 @@ All significant architectural decisions shall be documented using Architecture D
 
 ### NFR-PORT-001
 
-Project Orion shall support deployment on x86-64 systems.
+Project Aquila shall support deployment on x86-64 systems.
 
 ---
 
@@ -3153,7 +3153,7 @@ Irreversible actions shall require explicit operator confirmation.
 
 ## Acceptance Criteria
 
-Project Orion shall satisfy these quality requirements throughout development and production deployment.
+Project Aquila shall satisfy these quality requirements throughout development and production deployment.
 
 # 13. Verification and Acceptance
 
@@ -3188,7 +3188,7 @@ This traceability shall be maintained throughout the project's lifecycle.
 
 ## 13.3 Acceptance Testing
 
-A release of Project Orion shall not be considered production-ready until:
+A release of Project Aquila shall not be considered production-ready until:
 
 * All mandatory functional requirements have been implemented.
 * All acceptance criteria have been satisfied.
@@ -3223,10 +3223,10 @@ Future revisions shall expand existing requirements, introduce new capabilities,
 
 # Appendix A – Repository Structure
 
-The canonical Project Orion repository structure is shown below.
+The canonical Project Aquila repository structure is shown below.
 
 ```text
-Project-Orion/
+Project-Aquila/
 │
 ├── docs/
 │   ├── SRS/
@@ -3269,12 +3269,12 @@ Project-Orion/
 
 # Appendix B – Deployment Workflow
 
-Project Orion Version 1.0 supports two deployment workflows.
+Project Aquila Version 1.0 supports two deployment workflows.
 
 ## Workflow A — Device Retirement
 
 ```
-Boot Orion
+Boot Aquila
         │
         ▼
 Inspection
@@ -3300,10 +3300,10 @@ Retirement Complete
 
 ---
 
-## Workflow B — Orion Node Provisioning
+## Workflow B — Aquila Node Provisioning
 
 ```
-Boot Orion
+Boot Aquila
         │
         ▼
 Inspection
@@ -3346,11 +3346,11 @@ Deployment Complete
 
 # Appendix C – Deployment Environment
 
-Project Orion operates within three execution environments.
+Project Aquila operates within three execution environments.
 
 ## Deployment Environment
 
-Executed directly from Orion deployment media.
+Executed directly from Aquila deployment media.
 
 Responsibilities include:
 
@@ -3377,14 +3377,14 @@ Responsibilities include:
 
 ## Operational Environment
 
-The long-term production state of every Orion node.
+The long-term production state of every Aquila node.
 
 Responsibilities include:
 
 * Hosting workloads
 * Reporting inventory
 * Receiving management updates
-* Supporting future Orion capabilities
+* Supporting future Aquila capabilities
 
 ---
 
@@ -3415,7 +3415,7 @@ Typical report contents include:
 
 * Deployment identifier
 * Deployment date
-* Orion version
+* Aquila version
 * Technician identifier (optional)
 * Hardware summary
 * Recovery summary
@@ -3449,7 +3449,7 @@ Log formats may evolve while preserving backwards compatibility where practical.
 
 # Appendix G – Requirement Identifier Reference
 
-Project Orion utilizes standardized requirement identifiers.
+Project Aquila utilizes standardized requirement identifiers.
 
 | Prefix    | Description                 |
 | --------- | --------------------------- |
@@ -3472,7 +3472,7 @@ Project Orion utilizes standardized requirement identifiers.
 
 # Appendix H – Development Standards
 
-Development of Project Orion shall follow these principles.
+Development of Project Aquila shall follow these principles.
 
 * Documentation before implementation.
 * Every feature traces to an SRS requirement.
