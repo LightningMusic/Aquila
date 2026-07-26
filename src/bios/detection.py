@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 BIOS Detection
@@ -8,7 +8,7 @@ Automatically detects the firmware vendor and selects
 the correct BIOS provider implementation.
 
 This module is the entry point for every BIOS operation
-performed by Orion. The rest of the application should
+performed by Aquila. The rest of the application should
 never instantiate vendor providers directly. Instead,
 it requests the active provider through BIOSDetection.
 
@@ -23,7 +23,7 @@ Design Goals
 * Extensible provider architecture
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -59,7 +59,7 @@ class BIOSDetection:
     Detects the correct BIOS provider.
 
     Only one provider should ever be active for a
-    running instance of Orion.
+    running instance of Aquila.
     """
 
     _provider: BIOSProvider | None = None
@@ -594,7 +594,7 @@ class BIOSDetection:
         Alias for diagnostics().
 
         Allows BIOSDetection to be serialized
-        consistently with the rest of Orion.
+        consistently with the rest of Aquila.
         """
 
         return self.diagnostics()
@@ -648,7 +648,7 @@ def provider() -> BIOSProvider:
     Return the active BIOS provider.
 
     This is the preferred entry point for the
-    rest of Orion.
+    rest of Aquila.
     """
 
     return _detection.provider()

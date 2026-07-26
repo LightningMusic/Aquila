@@ -1,18 +1,18 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Filesystem Constants
 
 Defines filesystem-related constants used throughout
-Project Orion.
+Project Aquila.
 
 This module serves as the single source of truth for
 directory names, filenames, file extensions, and
 filesystem defaults.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -170,7 +170,7 @@ GITIGNORE_FILE = ".gitignore"
 # Temporary Files
 # ----------------------------------------------------------------------
 
-TEMP_PREFIX = "orion_"
+TEMP_PREFIX = "aquila_"
 
 TEMP_SUFFIX = ".tmp"
 

@@ -1,18 +1,18 @@
 """
-Project Orion
+Project Aquila
 =============
 
 GPU Benchmark
 
 Provides lightweight GPU benchmarking and capability
-discovery for Project Orion.
+discovery for Project Aquila.
 
 This benchmark is designed to run before Proxmox is
 installed and therefore avoids vendor-specific SDKs
 such as CUDA or ROCm.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

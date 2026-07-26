@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 JSON Utilities
 
 Provides standardized JSON serialization and deserialization
-utilities used throughout Project Orion.
+utilities used throughout Project Aquila.
 
 This module centralizes JSON handling to ensure consistent
 encoding, formatting, and error handling.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

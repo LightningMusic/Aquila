@@ -1,10 +1,10 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Unknown BIOS Provider
 
-Fallback provider used when Orion cannot determine the
+Fallback provider used when Aquila cannot determine the
 firmware vendor or firmware type.
 
 This provider intentionally makes no assumptions about
@@ -13,7 +13,7 @@ deployment can continue while avoiding vendor-specific
 operations that could damage firmware configuration.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

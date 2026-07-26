@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Benchmark Constants
 
 Defines application-wide benchmark constants used throughout
-Project Orion.
+Project Aquila.
 
 These values provide the default configuration for all
 hardware benchmarking operations.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

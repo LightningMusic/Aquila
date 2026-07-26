@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Hardware Exceptions
 
 Defines hardware-related exceptions used
-throughout Project Orion.
+throughout Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -16,10 +16,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class HardwareError(OrionError):
+class HardwareError(AquilaError):
     """
     Base class for all hardware-related exceptions.
     """
@@ -54,7 +54,7 @@ class HardwareConfigurationError(HardwareError):
 
 class HardwareCommunicationError(HardwareError):
     """
-    Raised when Orion cannot communicate
+    Raised when Aquila cannot communicate
     with a hardware device.
     """
 
@@ -75,7 +75,7 @@ class HardwareTimeoutError(HardwareError):
 
 class HardwarePermissionError(HardwareError):
     """
-    Raised when Orion lacks permission
+    Raised when Aquila lacks permission
     to access hardware resources.
     """
 

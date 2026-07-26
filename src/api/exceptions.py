@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 API Exceptions
 
 Defines exceptions used throughout the
-Project Orion API subsystem.
+Project Aquila API subsystem.
 
 These exceptions cover:
 
@@ -18,7 +18,7 @@ These exceptions cover:
     • Remote server failures
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -26,10 +26,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class ApiError(OrionError):
+class ApiError(AquilaError):
     """
     Base class for all API-related exceptions.
     """

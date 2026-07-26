@@ -1,16 +1,16 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application Constants
 
 Defines application-wide metadata and immutable constants used
-throughout Project Orion.
+throughout Project Aquila.
 
 These values should remain constant during application runtime.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -22,9 +22,9 @@ from __future__ import annotations
 # Application Identity
 # ----------------------------------------------------------------------
 
-APPLICATION_NAME = "Project Orion"
+APPLICATION_NAME = "Project Aquila"
 
-APPLICATION_SHORT_NAME = "Orion"
+APPLICATION_SHORT_NAME = "Aquila"
 
 APPLICATION_DESCRIPTION = (
     "Automated deployment and provisioning platform for "
@@ -32,12 +32,12 @@ APPLICATION_DESCRIPTION = (
     "a managed Proxmox cluster."
 )
 
-APPLICATION_AUTHOR = "Project Orion Development Team"
+APPLICATION_AUTHOR = "Project Aquila Development Team"
 
 APPLICATION_LICENSE = "MIT"
 
 APPLICATION_COPYRIGHT = (
-    "Copyright (c) 2026 Project Orion Development Team"
+    "Copyright (c) 2026 Project Aquila Development Team"
 )
 
 # ----------------------------------------------------------------------
@@ -54,12 +54,12 @@ APPLICATION_CODENAME = "Genesis"
 # Repository Information
 # ----------------------------------------------------------------------
 
-REPOSITORY_NAME = "Project-Orion"
+REPOSITORY_NAME = "Project-Aquila"
 
 REPOSITORY_OWNER = "LightningMusic"
 
 REPOSITORY_URL = (
-    "https://github.com/LightningMusic/Project-Orion"
+    "https://github.com/LightningMusic/Project-Aquila"
 )
 
 # ----------------------------------------------------------------------
@@ -87,7 +87,7 @@ DEFAULT_LINE_ENDING = "\n"
 # Logging
 # ----------------------------------------------------------------------
 
-DEFAULT_LOGGER_NAME = "orion"
+DEFAULT_LOGGER_NAME = "aquila"
 
 DEFAULT_TIMEZONE = "UTC"
 

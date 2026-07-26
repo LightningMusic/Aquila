@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Date and Time Utilities
 
 Provides standardized date and time utilities used throughout
-Project Orion.
+Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

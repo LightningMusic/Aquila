@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application Version Information
@@ -10,7 +10,7 @@ Every subsystem should retrieve application information from this
 module rather than defining duplicate constants.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -38,7 +38,7 @@ VERSION: str = (
 # Application Metadata
 # ----------------------------------------------------------------------
 
-APPLICATION_NAME: str = "Project Orion"
+APPLICATION_NAME: str = "Project Aquila"
 
 APPLICATION_VERSION: str = VERSION
 
@@ -52,7 +52,7 @@ APPLICATION_DESCRIPTION: str = (
 )
 
 APPLICATION_REPOSITORY: str = (
-    "https://github.com/LightningMusic/Project-Orion"
+    "https://github.com/LightningMusic/Project-Aquila"
 )
 
 APPLICATION_COPYRIGHT: str = (

@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application lifecycle events.
 
-This module defines events related to the Orion application's
+This module defines events related to the Aquila application's
 startup, initialization, execution, and shutdown.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -29,7 +29,7 @@ from common.events.event import Event
 @dataclass(frozen=True, slots=True)
 class ApplicationStartingEvent(Event):
     """
-    Published immediately before Orion begins initialization.
+    Published immediately before Aquila begins initialization.
     """
 
     def __init__(self) -> None:
@@ -42,7 +42,7 @@ class ApplicationStartingEvent(Event):
 @dataclass(frozen=True, slots=True)
 class ApplicationStartedEvent(Event):
     """
-    Published after Orion has successfully initialized.
+    Published after Aquila has successfully initialized.
     """
 
     def __init__(self) -> None:
@@ -68,7 +68,7 @@ class ApplicationStoppingEvent(Event):
 @dataclass(frozen=True, slots=True)
 class ApplicationStoppedEvent(Event):
     """
-    Published after Orion has completed shutdown.
+    Published after Aquila has completed shutdown.
     """
 
     def __init__(self) -> None:

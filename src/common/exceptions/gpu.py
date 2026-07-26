@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 GPU Exceptions
@@ -7,7 +7,7 @@ GPU Exceptions
 Exception hierarchy for the GPU subsystem.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -15,10 +15,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class GPUError(OrionError):
+class GPUError(AquilaError):
     """
     Base class for GPU-related exceptions.
     """

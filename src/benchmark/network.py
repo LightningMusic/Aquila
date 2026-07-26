@@ -1,16 +1,16 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Network Benchmark
 
-Provides network benchmarking for Project Orion.
+Provides network benchmarking for Project Aquila.
 
 The benchmark focuses on characteristics important
 to Proxmox cluster deployment.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

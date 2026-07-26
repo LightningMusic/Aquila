@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Framework BIOS Provider
@@ -13,7 +13,7 @@ capabilities through the common BIOSProvider
 interface.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

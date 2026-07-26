@@ -1,10 +1,10 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Thermal Benchmark
 
-Provides lightweight thermal monitoring for Project Orion.
+Provides lightweight thermal monitoring for Project Aquila.
 
 This module samples system temperatures before and after
 benchmark execution. It is intended to detect obvious
@@ -12,7 +12,7 @@ thermal problems without placing unnecessary stress on
 the hardware.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

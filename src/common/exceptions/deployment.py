@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Deployment Exceptions
 
 Defines deployment-related exceptions used
-throughout Project Orion.
+throughout Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -16,10 +16,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class DeploymentError(OrionError):
+class DeploymentError(AquilaError):
     """
     Base class for all deployment-related exceptions.
     """

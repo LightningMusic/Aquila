@@ -1,15 +1,15 @@
 """
-Project Orion
+Project Aquila
 =============
 
-Base event definitions for Project Orion.
+Base event definitions for Project Aquila.
 
-All events published through the Orion Event Bus inherit from Event.
+All events published through the Aquila Event Bus inherit from Event.
 Events are immutable and carry metadata that allows them to be traced
 throughout the lifetime of the application.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -26,7 +26,7 @@ from uuid import UUID, uuid4
 @dataclass(frozen=True, slots=True)
 class Event:
     """
-    Base class for all Orion events.
+    Base class for all Aquila events.
 
     Attributes:
         event_id:
@@ -99,14 +99,14 @@ class Event:
 
 
 # =============================================================================
-# Common Orion Events
+# Common Aquila Events
 # =============================================================================
 
 
 @dataclass(frozen=True, slots=True)
 class ApplicationStartedEvent(Event):
     """
-    Raised after Orion finishes initialization.
+    Raised after Aquila finishes initialization.
     """
 
     def __init__(self) -> None:
@@ -119,7 +119,7 @@ class ApplicationStartedEvent(Event):
 @dataclass(frozen=True, slots=True)
 class ApplicationStoppingEvent(Event):
     """
-    Raised immediately before Orion begins shutdown.
+    Raised immediately before Aquila begins shutdown.
     """
 
     def __init__(self) -> None:

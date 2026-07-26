@@ -1,10 +1,10 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Storage Benchmark
 
-Provides storage benchmarking for Project Orion.
+Provides storage benchmarking for Project Aquila.
 
 This module performs lightweight sequential write,
 sequential read, and random read/write benchmarks
@@ -12,7 +12,7 @@ using temporary files. It is intended to validate
 storage performance before Proxmox installation.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -54,7 +54,7 @@ class StorageBenchmark:
         Execute the storage benchmark suite.
         """
 
-        temp_dir = Path(tempfile.mkdtemp(prefix="orion_storage_"))
+        temp_dir = Path(tempfile.mkdtemp(prefix="aquila_storage_"))
         test_file = temp_dir / "benchmark.bin"
 
         try:

@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Event Dispatcher
@@ -11,7 +11,7 @@ application logic. Its sole responsibility is invoking registered
 event handlers safely.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

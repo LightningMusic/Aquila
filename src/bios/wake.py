@@ -96,7 +96,7 @@ class WakeManager:
     """
     Manages BIOS wake events and wake sources.
 
-    Orion uses this manager to configure wake behavior
+    Aquila uses this manager to configure wake behavior
     before systems are deployed as workstations,
     servers, Proxmox nodes, or storage appliances.
     """
@@ -868,7 +868,7 @@ class WakeManager:
         return True
     
     # ======================================================
-    # Orion Deployment Profiles
+    # Aquila Deployment Profiles
     # ======================================================
 
     def apply_workstation_profile(self) -> bool:
@@ -1034,7 +1034,7 @@ class WakeManager:
 
     def export(self) -> dict[str, Any]:
         """
-        Export wake information for Orion reports.
+        Export wake information for Aquila reports.
         """
 
         logger.info(

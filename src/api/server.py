@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 API Server
@@ -15,10 +15,10 @@ The ApiServer class manages:
     • Shared API client
 
 This module does NOT implement an HTTP server.
-Project Orion is an API client.
+Project Aquila is an API client.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

@@ -1,8 +1,8 @@
 """
-Project Orion
+Project Aquila
 =============
 
-Common utility functions used throughout Project Orion.
+Common utility functions used throughout Project Aquila.
 
 This module contains small, reusable helper functions that do not
 belong to any specific subsystem.
@@ -11,7 +11,7 @@ Utility functions should remain stateless and avoid side effects
 whenever practical.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -293,7 +293,7 @@ def bytes_to_gigabytes(size: int) -> float:
 
 def initialize_runtime() -> None:
     """
-    Initialize the Orion runtime environment.
+    Initialize the Aquila runtime environment.
 
     Creates all required runtime directories.
     """

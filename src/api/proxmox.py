@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Proxmox API
@@ -8,10 +8,10 @@ High-level interface for interacting with the
 Proxmox VE REST API.
 
 This module wraps the generic ApiClient and exposes
-operations meaningful to Project Orion.
+operations meaningful to Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

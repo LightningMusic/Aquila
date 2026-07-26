@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 CPU Benchmark
 
-Provides CPU benchmarking for Project Orion.
+Provides CPU benchmarking for Project Aquila.
 
 This module measures processor performance using
 simple, repeatable workloads that require no
 external benchmarking software.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

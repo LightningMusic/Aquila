@@ -1,10 +1,10 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Power Management
 
-Provides operating system power configuration for Orion.
+Provides operating system power configuration for Aquila.
 
 Unlike BIOSManager, which controls firmware settings,
 PowerManager configures the operating system after it
@@ -59,10 +59,10 @@ class PowerProfile(Enum):
     HIGH_PERFORMANCE = "high_performance"
     POWER_SAVER = "power_saver"
 
-    ORION_DEPLOYMENT = "orion_deployment"
-    ORION_SERVER = "orion_server"
-    ORION_PORTABLE = "orion_portable"
-    ORION_STORAGE = "orion_storage"
+    AQUILA_DEPLOYMENT = "aquila_deployment"
+    AQUILA_SERVER = "aquila_server"
+    AQUILA_PORTABLE = "aquila_portable"
+    AQUILA_STORAGE = "aquila_storage"
 
 
 class LidAction(Enum):
@@ -868,21 +868,21 @@ class PowerManager:
         return self._configuration.pcie_link_state_management
     
     # ======================================================
-    # Orion Deployment Profiles
+    # Aquila Deployment Profiles
     # ======================================================
 
     def apply_deployment_profile(self) -> bool:
         """
-        Temporary profile used while Orion is imaging,
+        Temporary profile used while Aquila is imaging,
         benchmarking, and configuring a machine.
         """
 
         logger.info(
-            "Applying Orion Deployment profile..."
+            "Applying Aquila Deployment profile..."
         )
 
         self._configuration.profile = (
-            PowerProfile.ORION_DEPLOYMENT
+            PowerProfile.AQUILA_DEPLOYMENT
         )
 
         self.disable_sleep()
@@ -910,11 +910,11 @@ class PowerManager:
         """
 
         logger.info(
-            "Applying Orion Server profile..."
+            "Applying Aquila Server profile..."
         )
 
         self._configuration.profile = (
-            PowerProfile.ORION_SERVER
+            PowerProfile.AQUILA_SERVER
         )
 
         self.disable_sleep()
@@ -942,11 +942,11 @@ class PowerManager:
         """
 
         logger.info(
-            "Applying Orion Portable profile..."
+            "Applying Aquila Portable profile..."
         )
 
         self._configuration.profile = (
-            PowerProfile.ORION_PORTABLE
+            PowerProfile.AQUILA_PORTABLE
         )
 
         self.enable_sleep()
@@ -974,11 +974,11 @@ class PowerManager:
         """
 
         logger.info(
-            "Applying Orion Storage profile..."
+            "Applying Aquila Storage profile..."
         )
 
         self._configuration.profile = (
-            PowerProfile.ORION_STORAGE
+            PowerProfile.AQUILA_STORAGE
         )
 
         self.enable_sleep()
@@ -1038,7 +1038,7 @@ class PowerManager:
         """
         Export the current configuration.
 
-        Used by Orion reporting and deployment logs.
+        Used by Aquila reporting and deployment logs.
         """
 
         logger.info(
@@ -1081,7 +1081,7 @@ class PowerManager:
 
     def profile(self) -> PowerProfile:
         """
-        Returns the active Orion power profile.
+        Returns the active Aquila power profile.
         """
 
         return self._configuration.profile
@@ -1114,28 +1114,28 @@ class PowerManager:
 
         return (
             self._configuration.profile
-            == PowerProfile.ORION_SERVER
+            == PowerProfile.AQUILA_SERVER
         )
 
     def is_portable_profile(self) -> bool:
 
         return (
             self._configuration.profile
-            == PowerProfile.ORION_PORTABLE
+            == PowerProfile.AQUILA_PORTABLE
         )
 
     def is_storage_profile(self) -> bool:
 
         return (
             self._configuration.profile
-            == PowerProfile.ORION_STORAGE
+            == PowerProfile.AQUILA_STORAGE
         )
 
     def is_deployment_profile(self) -> bool:
 
         return (
             self._configuration.profile
-            == PowerProfile.ORION_DEPLOYMENT
+            == PowerProfile.AQUILA_DEPLOYMENT
         )
 
     # ======================================================

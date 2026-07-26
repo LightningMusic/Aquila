@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Networking Exceptions
 
 Defines networking-related exceptions used
-throughout Project Orion.
+throughout Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -16,10 +16,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class NetworkingError(OrionError):
+class NetworkingError(AquilaError):
     """
     Base class for all networking-related exceptions.
     """
@@ -55,7 +55,7 @@ class NetworkingTimeoutError(NetworkingError):
 
 class NetworkingPermissionError(NetworkingError):
     """
-    Raised when Orion lacks permission
+    Raised when Aquila lacks permission
     to perform a networking operation.
     """
 

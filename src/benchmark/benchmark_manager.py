@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Benchmark Manager
 
 Coordinates all benchmark modules and produces a
-single benchmark report for Project Orion.
+single benchmark report for Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

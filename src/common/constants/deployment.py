@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Deployment Constants
 
 Defines deployment-wide constants used throughout
-Project Orion.
+Project Aquila.
 
 These constants describe the deployment workflow, phases,
 statuses, defaults, and safety limits.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -92,7 +92,7 @@ ROOT_RESERVED_PERCENT = 5
 # Proxmox
 # ----------------------------------------------------------------------
 
-PROXMOX_HOSTNAME_PREFIX = "orion-node"
+PROXMOX_HOSTNAME_PREFIX = "aquila-node"
 
 PROXMOX_DEFAULT_USERNAME = "root"
 

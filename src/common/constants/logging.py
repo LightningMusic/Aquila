@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Logging Constants
 
 Defines logging-related constants used throughout
-Project Orion.
+Project Aquila.
 
 This module centralizes logger names, log levels,
 default formats, rotation settings, and log filenames.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -23,33 +23,33 @@ from __future__ import annotations
 # Logger Names
 # ----------------------------------------------------------------------
 
-ROOT_LOGGER = "orion"
+ROOT_LOGGER = "aquila"
 
-APPLICATION_LOGGER = "orion.application"
+APPLICATION_LOGGER = "aquila.application"
 
-DEPLOYMENT_LOGGER = "orion.deployment"
+DEPLOYMENT_LOGGER = "aquila.deployment"
 
-RECOVERY_LOGGER = "orion.recovery"
+RECOVERY_LOGGER = "aquila.recovery"
 
-INSPECTION_LOGGER = "orion.inspection"
+INSPECTION_LOGGER = "aquila.inspection"
 
-PROVISIONING_LOGGER = "orion.provisioning"
+PROVISIONING_LOGGER = "aquila.provisioning"
 
-NETWORK_LOGGER = "orion.network"
+NETWORK_LOGGER = "aquila.network"
 
-BENCHMARK_LOGGER = "orion.benchmark"
+BENCHMARK_LOGGER = "aquila.benchmark"
 
-HARDWARE_LOGGER = "orion.hardware"
+HARDWARE_LOGGER = "aquila.hardware"
 
-BOOTSTRAP_LOGGER = "orion.bootstrap"
+BOOTSTRAP_LOGGER = "aquila.bootstrap"
 
-INVENTORY_LOGGER = "orion.inventory"
+INVENTORY_LOGGER = "aquila.inventory"
 
-API_LOGGER = "orion.api"
+API_LOGGER = "aquila.api"
 
-CLI_LOGGER = "orion.cli"
+CLI_LOGGER = "aquila.cli"
 
-GUI_LOGGER = "orion.gui"
+GUI_LOGGER = "aquila.gui"
 
 # ----------------------------------------------------------------------
 # Logging Levels
@@ -140,7 +140,7 @@ MAX_LOG_FILES = 10
 
 ENABLE_PERFORMANCE_LOGGING = True
 
-PERFORMANCE_LOGGER = "orion.performance"
+PERFORMANCE_LOGGER = "aquila.performance"
 
 PERFORMANCE_LOG_FILE = "performance.log"
 
@@ -150,7 +150,7 @@ PERFORMANCE_LOG_FILE = "performance.log"
 
 ENABLE_EVENT_LOGGING = True
 
-EVENT_LOGGER = "orion.events"
+EVENT_LOGGER = "aquila.events"
 
 EVENT_LOG_FILE = "events.log"
 

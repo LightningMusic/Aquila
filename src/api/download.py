@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Download Manager
 
 Handles downloading runtime artifacts required by
-Project Orion.
+Project Aquila.
 
 Current responsibilities:
 
@@ -15,7 +15,7 @@ Current responsibilities:
     • Prevent duplicate downloads
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -31,7 +31,7 @@ import requests
 
 class DownloadManager:
     """
-    Handles downloading files required by Orion.
+    Handles downloading files required by Aquila.
     """
 
     DEFAULT_CHUNK_SIZE = 1024 * 1024

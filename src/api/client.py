@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 HTTP API Client
 
 Provides a reusable HTTP client used throughout
-Project Orion.
+Project Aquila.
 
 This module centralizes:
 
@@ -17,7 +17,7 @@ This module centralizes:
     • Error handling
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -62,7 +62,7 @@ class ApiClient:
             {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
-                "User-Agent": "Project-Orion",
+                "User-Agent": "Project-Aquila",
             }
         )
 

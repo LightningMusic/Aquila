@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Hardware Constants
 
 Defines hardware-related constants used throughout
-Project Orion.
+Project Aquila.
 
 This module centralizes default hardware limits,
 thresholds, identifiers, and capability requirements.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

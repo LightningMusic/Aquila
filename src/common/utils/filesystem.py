@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Filesystem Utilities
 
 Provides safe filesystem helper functions used throughout
-Project Orion.
+Project Aquila.
 
 All filesystem operations should be routed through this module
 whenever practical to ensure consistent behavior.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

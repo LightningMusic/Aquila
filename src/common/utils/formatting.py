@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Formatting Utilities
 
 Provides standardized formatting helpers used throughout
-Project Orion.
+Project Aquila.
 
 This module contains presentation utilities only. It should never
 contain business logic.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

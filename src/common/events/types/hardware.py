@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Hardware events.
@@ -9,7 +9,7 @@ component detection, BIOS configuration, SMART status, and battery
 health.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

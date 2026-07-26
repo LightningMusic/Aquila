@@ -1,18 +1,18 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Generic UEFI Provider
 
 Fallback provider for standards-compliant UEFI firmware.
 
-This provider is used when Orion detects a UEFI firmware
+This provider is used when Aquila detects a UEFI firmware
 implementation but cannot identify a supported vendor.
 It exposes common UEFI capabilities while avoiding
 vendor-specific functionality.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

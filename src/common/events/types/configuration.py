@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Configuration events.
@@ -8,7 +8,7 @@ Defines events related to configuration loading, validation,
 saving, and runtime configuration changes.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

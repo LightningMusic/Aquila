@@ -1,16 +1,16 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Subscriber Base Class
 
 Defines the abstract interface for all event subscribers within
-Project Orion.
+Project Aquila.
 
 Subscribers receive events published through the EventBus.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Benchmark Exceptions
 
 Defines benchmark-related exceptions used throughout
-Project Orion.
+Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -16,10 +16,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class BenchmarkError(OrionError):
+class BenchmarkError(AquilaError):
     """
     Base class for all benchmark-related exceptions.
     """

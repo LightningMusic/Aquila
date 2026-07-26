@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Firmware Information
@@ -14,7 +14,7 @@ hardware detection logic, allowing it to be safely
 shared throughout the BIOS subsystem.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

@@ -1,18 +1,18 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Proxmox Constants
 
 Defines Proxmox VE related constants used throughout
-Project Orion.
+Project Aquila.
 
 This module centralizes API endpoints, default ports,
 cluster defaults, filesystem locations, package names,
 service names, and installation defaults.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -36,7 +36,7 @@ PROXMOX_DEFAULT_BRANCH = "stable"
 # Network
 # ----------------------------------------------------------------------
 
-PROXMOX_DEFAULT_HOSTNAME_PREFIX = "orion-node"
+PROXMOX_DEFAULT_HOSTNAME_PREFIX = "aquila-node"
 
 PROXMOX_DEFAULT_DOMAIN = "local"
 
@@ -66,7 +66,7 @@ VERIFY_TLS = False
 # Cluster
 # ----------------------------------------------------------------------
 
-DEFAULT_CLUSTER_NAME = "orion-cluster"
+DEFAULT_CLUSTER_NAME = "aquila-cluster"
 
 DEFAULT_NODE_PREFIX = "node"
 

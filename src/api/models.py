@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 API Models
@@ -11,7 +11,7 @@ are intentionally independent of any specific API such
 as Proxmox VE.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

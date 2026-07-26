@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Configuration Exceptions
 
 Defines configuration-related exceptions used
-throughout Project Orion.
+throughout Project Aquila.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -16,10 +16,10 @@ License:
 
 from __future__ import annotations
 
-from common.exceptions.application import OrionError
+from common.exceptions.application import AquilaError
 
 
-class ConfigurationError(OrionError):
+class ConfigurationError(AquilaError):
     """
     Base class for all configuration-related exceptions.
     """
@@ -102,7 +102,7 @@ class ConfigurationTypeError(ConfigurationError):
 
 class ConfigurationPermissionError(ConfigurationError):
     """
-    Raised when Orion cannot access a
+    Raised when Aquila cannot access a
     configuration file due to permissions.
     """
 

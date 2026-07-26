@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Deployment events.
@@ -9,7 +9,7 @@ including recovery, preparation, provisioning, bootstrap,
 completion, cancellation, and failure.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

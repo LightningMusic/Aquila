@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Memory Benchmark
 
-Provides memory benchmarking for Project Orion.
+Provides memory benchmarking for Project Aquila.
 
 This benchmark measures memory allocation,
 sequential access, random access, and copy
 performance using only the Python standard library.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

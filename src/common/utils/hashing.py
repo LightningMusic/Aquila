@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Hashing Utilities
 
 Provides standardized hashing functions used throughout
-Project Orion.
+Project Aquila.
 
 Supported Uses
 --------------
@@ -16,7 +16,7 @@ Supported Uses
 - Duplicate file detection
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

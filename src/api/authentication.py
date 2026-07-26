@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 API Authentication
 
 Provides authentication management for remote
-API servers used by Project Orion.
+API servers used by Project Aquila.
 
 Supports:
 
@@ -14,7 +14,7 @@ Supports:
     • Ticket Authentication
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

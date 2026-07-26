@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 API Endpoints
 
 Defines endpoint constants and helper functions
-used by Project Orion.
+used by Project Aquila.
 
 Currently these endpoints target the
 Proxmox VE REST API.
@@ -14,7 +14,7 @@ Nothing outside this module should hardcode
 API paths.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application
 
-Defines the root application object for Project Orion.
+Defines the root application object for Project Aquila.
 
 The Application class owns the application's core infrastructure,
 including the dependency injection container, configuration,
 logging, and event bus.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -30,7 +30,7 @@ class Application:
     """
     Root application object.
 
-    Every major Orion subsystem is created from here.
+    Every major Aquila subsystem is created from here.
     """
 
     def __init__(self) -> None:

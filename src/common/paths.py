@@ -1,16 +1,16 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Filesystem Paths
 
-Provides a centralized definition of the Project Orion directory
+Provides a centralized definition of the Project Aquila directory
 structure.
 
 No other module should construct project-relative paths manually.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -67,7 +67,7 @@ MEETING_NOTES_DIR = DOCS_DIR / "meeting-notes"
 SRS_DIR = DOCS_DIR / "SRS"
 
 ROADMAP_FILE = DOCS_DIR / "ROADMAP.md"
-SRS_FILE = SRS_DIR / "Project-Orion-SRS.md"
+SRS_FILE = SRS_DIR / "Project-Aquila-SRS.md"
 
 # ----------------------------------------------------------------------
 # Configuration Files

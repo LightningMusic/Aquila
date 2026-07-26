@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Runtime Utilities
 
-Provides runtime directory management for Project Orion.
+Provides runtime directory management for Project Aquila.
 
 This module is responsible for creating and managing temporary
 working directories, caches, reports, logs, and other runtime
-resources used while Orion is executing.
+resources used while Aquila is executing.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

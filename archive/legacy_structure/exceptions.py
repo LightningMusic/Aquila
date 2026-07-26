@@ -1,15 +1,15 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application exception hierarchy.
 
-All custom exceptions within Project Orion should inherit from
-OrionError. This provides a consistent exception hierarchy for
+All custom exceptions within Project Aquila should inherit from
+AquilaError. This provides a consistent exception hierarchy for
 logging, error handling, and user-facing error reporting.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -18,9 +18,9 @@ License:
 from __future__ import annotations
 
 
-class OrionError(Exception):
+class AquilaError(Exception):
     """
-    Base exception for all Project Orion errors.
+    Base exception for all Project Aquila errors.
 
     Catch this exception to handle any application-specific error.
     """
@@ -31,31 +31,31 @@ class OrionError(Exception):
 # =============================================================================
 
 
-class InitializationError(OrionError):
+class InitializationError(AquilaError):
     """
-    Raised when Orion fails during application startup.
-    """
-
-
-class ShutdownError(OrionError):
-    """
-    Raised when Orion encounters an error during shutdown.
+    Raised when Aquila fails during application startup.
     """
 
 
-class ServiceRegistrationError(OrionError):
+class ShutdownError(AquilaError):
+    """
+    Raised when Aquila encounters an error during shutdown.
+    """
+
+
+class ServiceRegistrationError(AquilaError):
     """
     Raised when a service cannot be registered with the service container.
     """
 
 
-class ServiceResolutionError(OrionError):
+class ServiceResolutionError(AquilaError):
     """
     Raised when a requested service cannot be resolved.
     """
 
 
-class EventBusError(OrionError):
+class EventBusError(AquilaError):
     """
     Raised for Event Bus failures.
     """
@@ -66,7 +66,7 @@ class EventBusError(OrionError):
 # =============================================================================
 
 
-class ConfigurationError(OrionError):
+class ConfigurationError(AquilaError):
     """
     Base class for configuration-related errors.
     """
@@ -95,7 +95,7 @@ class ConfigurationVersionError(ConfigurationError):
 # =============================================================================
 
 
-class LoggingError(OrionError):
+class LoggingError(AquilaError):
     """
     Raised when the logging subsystem fails.
     """
@@ -106,7 +106,7 @@ class LoggingError(OrionError):
 # =============================================================================
 
 
-class InspectionError(OrionError):
+class InspectionError(AquilaError):
     """
     Base class for hardware inspection failures.
     """
@@ -135,7 +135,7 @@ class SMARTError(InspectionError):
 # =============================================================================
 
 
-class RecoveryError(OrionError):
+class RecoveryError(AquilaError):
     """
     Base class for recovery subsystem failures.
     """
@@ -152,7 +152,7 @@ class RecoveryVerificationError(RecoveryError):
 # =============================================================================
 
 
-class PreparationError(OrionError):
+class PreparationError(AquilaError):
     """
     Base class for storage preparation failures.
     """
@@ -175,7 +175,7 @@ class SanitizationError(PreparationError):
 # =============================================================================
 
 
-class ProvisioningError(OrionError):
+class ProvisioningError(AquilaError):
     """
     Base class for provisioning failures.
     """
@@ -198,7 +198,7 @@ class BootstrapError(ProvisioningError):
 # =============================================================================
 
 
-class NetworkError(OrionError):
+class NetworkError(AquilaError):
     """
     Base class for networking failures.
     """
@@ -239,7 +239,7 @@ class DeploymentControllerConnectionError(NetworkError):
 # =============================================================================
 
 
-class DeploymentControllerError(OrionError):
+class DeploymentControllerError(AquilaError):
     """
     Base class for Deployment Controller failures.
     """
@@ -268,7 +268,7 @@ class NodeRegistrationError(DeploymentControllerError):
 # =============================================================================
 
 
-class InventoryError(OrionError):
+class InventoryError(AquilaError):
     """
     Base class for inventory failures.
     """
@@ -279,7 +279,7 @@ class InventoryError(OrionError):
 # =============================================================================
 
 
-class BenchmarkError(OrionError):
+class BenchmarkError(AquilaError):
     """
     Base class for benchmark failures.
     """
@@ -296,7 +296,7 @@ class BenchmarkTimeoutError(BenchmarkError):
 # =============================================================================
 
 
-class FileSystemError(OrionError):
+class FileSystemError(AquilaError):
     """
     Base class for filesystem failures.
     """

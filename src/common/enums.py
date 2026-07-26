@@ -1,15 +1,15 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application-wide enumerations.
 
 This module defines strongly typed enumerations used throughout
-Project Orion. Enums eliminate "magic strings", improve readability,
+Project Aquila. Enums eliminate "magic strings", improve readability,
 and provide better IDE support.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -27,7 +27,7 @@ from enum import Enum, auto
 
 class ApplicationState(Enum):
     """
-    Orion application lifecycle states.
+    Aquila application lifecycle states.
     """
 
     STARTING = auto()
@@ -92,7 +92,7 @@ class WorkflowState(Enum):
 
 class LogLevel(Enum):
     """
-    Orion logging levels.
+    Aquila logging levels.
     """
 
     DEBUG = auto()
@@ -205,7 +205,7 @@ class BenchmarkStatus(Enum):
 
 class EventType(Enum):
     """
-    Standard Orion event types.
+    Standard Aquila event types.
     """
 
     APPLICATION_STARTING = auto()
@@ -301,7 +301,7 @@ class EventType(Enum):
     CLUSTER_JOIN_FAILED = auto()
 class EventSource(Enum):
     """
-    Known Orion event publishers.
+    Known Aquila event publishers.
     """
 
     CORE_APPLICATION = auto()

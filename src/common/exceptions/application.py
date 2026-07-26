@@ -1,16 +1,16 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application Exceptions
 
-Defines the base exception hierarchy for Project Orion.
+Defines the base exception hierarchy for Project Aquila.
 
-Every custom exception in Orion should ultimately inherit
-from OrionError.
+Every custom exception in Aquila should ultimately inherit
+from AquilaError.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -21,12 +21,12 @@ from __future__ import annotations
 from typing import Any
 
 
-class OrionError(Exception):
+class AquilaError(Exception):
     """
-    Base class for every Orion exception.
+    Base class for every Aquila exception.
     """
 
-    def __init__(self, message: str = "An Orion error occurred.") -> None:
+    def __init__(self, message: str = "An Aquila error occurred.") -> None:
         super().__init__(message)
         self.message = message
 
@@ -34,25 +34,25 @@ class OrionError(Exception):
         return self.message
 
 
-class OrionInitializationError(OrionError):
+class AquilaInitializationError(AquilaError):
     """
-    Raised when Orion cannot initialize correctly.
-    """
-
-
-class OrionShutdownError(OrionError):
-    """
-    Raised when Orion cannot shut down cleanly.
+    Raised when Aquila cannot initialize correctly.
     """
 
 
-class OrionConfigurationError(OrionError):
+class AquilaShutdownError(AquilaError):
+    """
+    Raised when Aquila cannot shut down cleanly.
+    """
+
+
+class AquilaConfigurationError(AquilaError):
     """
     Raised when application configuration is invalid.
     """
 
 
-class OrionValidationError(OrionError):
+class AquilaValidationError(AquilaError):
     """
     Raised when application validation fails.
     """
@@ -68,63 +68,63 @@ class OrionValidationError(OrionError):
         self.value = value
 
 
-class OrionStateError(OrionError):
+class AquilaStateError(AquilaError):
     """
     Raised when an object is in an invalid state.
     """
 
 
-class OrionTimeoutError(OrionError):
+class AquilaTimeoutError(AquilaError):
     """
     Raised when an operation exceeds its timeout.
     """
 
 
-class OrionCancelledError(OrionError):
+class AquilaCancelledError(AquilaError):
     """
     Raised when an operation is cancelled.
     """
 
 
-class OrionPermissionError(OrionError):
+class AquilaPermissionError(AquilaError):
     """
     Raised when an operation lacks required permissions.
     """
 
 
-class OrionNotFoundError(OrionError):
+class AquilaNotFoundError(AquilaError):
     """
     Raised when a requested resource cannot be found.
     """
 
 
-class OrionAlreadyExistsError(OrionError):
+class AquilaAlreadyExistsError(AquilaError):
     """
     Raised when attempting to create something that
     already exists.
     """
 
 
-class OrionUnsupportedError(OrionError):
+class AquilaUnsupportedError(AquilaError):
     """
     Raised when a requested operation is unsupported.
     """
 
 
-class OrionDependencyError(OrionError):
+class AquilaDependencyError(AquilaError):
     """
     Raised when a required dependency is unavailable.
     """
 
 
-class OrionEnvironmentError(OrionError):
+class AquilaEnvironmentError(AquilaError):
     """
     Raised when the host environment does not satisfy
-    Orion's requirements.
+    Aquila's requirements.
     """
 
 
-class OrionOperationError(OrionError):
+class AquilaOperationError(AquilaError):
     """
     Raised when an operation fails.
     """
@@ -138,14 +138,14 @@ class OrionOperationError(OrionError):
         super().__init__(f"{operation}: {message}")
 
 
-class OrionInternalError(OrionError):
+class AquilaInternalError(AquilaError):
     """
-    Raised when Orion encounters an unexpected internal
+    Raised when Aquila encounters an unexpected internal
     error.
     """
 
 
-class OrionDataError(OrionError):
+class AquilaDataError(AquilaError):
     """
     Raised when data is corrupt, malformed,
     or otherwise unusable.
@@ -153,21 +153,21 @@ class OrionDataError(OrionError):
 
 
 __all__ = [
-    "OrionAlreadyExistsError",
-    "OrionCancelledError",
-    "OrionConfigurationError",
-    "OrionDataError",
-    "OrionDependencyError",
-    "OrionEnvironmentError",
-    "OrionError",
-    "OrionInitializationError",
-    "OrionInternalError",
-    "OrionNotFoundError",
-    "OrionOperationError",
-    "OrionPermissionError",
-    "OrionShutdownError",
-    "OrionStateError",
-    "OrionTimeoutError",
-    "OrionUnsupportedError",
-    "OrionValidationError",
+    "AquilaAlreadyExistsError",
+    "AquilaCancelledError",
+    "AquilaConfigurationError",
+    "AquilaDataError",
+    "AquilaDependencyError",
+    "AquilaEnvironmentError",
+    "AquilaError",
+    "AquilaInitializationError",
+    "AquilaInternalError",
+    "AquilaNotFoundError",
+    "AquilaOperationError",
+    "AquilaPermissionError",
+    "AquilaShutdownError",
+    "AquilaStateError",
+    "AquilaTimeoutError",
+    "AquilaUnsupportedError",
+    "AquilaValidationError",
 ]

@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Networking events.
@@ -9,7 +9,7 @@ IP configuration, connectivity testing, DNS, gateway validation,
 cluster registration, and SSH connectivity.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

@@ -1,14 +1,14 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Application-wide constants.
 
-This module contains immutable values used throughout Project Orion.
+This module contains immutable values used throughout Project Aquila.
 No application logic should exist in this module.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -50,7 +50,7 @@ DEFAULT_LOG_LEVEL: str = "INFO"
 
 DEFAULT_LOG_DIRECTORY: str = "logs"
 
-DEFAULT_LOG_FILE: str = "orion.log"
+DEFAULT_LOG_FILE: str = "aquila.log"
 
 LOG_FILE_EXTENSION: str = ".log"
 
@@ -66,7 +66,7 @@ DEPLOYMENT_REPORT_DIRECTORY: str = "reports"
 
 DEPLOYMENT_TIMEOUT_SECONDS: int = 300
 
-DEFAULT_HOSTNAME_PREFIX: str = "orion-node"
+DEFAULT_HOSTNAME_PREFIX: str = "aquila-node"
 
 DEFAULT_NODE_NAME_PREFIX: str = "node"
 

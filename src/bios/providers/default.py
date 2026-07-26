@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Default BIOS Provider
@@ -13,7 +13,7 @@ from this class and override only the methods they
 support.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

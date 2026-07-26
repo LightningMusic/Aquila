@@ -1,10 +1,10 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Event Bus
 
-Central publish/subscribe manager for Project Orion.
+Central publish/subscribe manager for Project Aquila.
 
 The EventBus provides a single application-wide interface for
 publishing events and managing event subscriptions. It delegates
@@ -12,7 +12,7 @@ event delivery to the EventDispatcher while maintaining a bounded
 history of recently published events.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -31,7 +31,7 @@ EventHandler = Callable[[Event], None]
 
 class EventBus:
     """
-    Central event bus for Project Orion.
+    Central event bus for Project Aquila.
 
     Responsibilities
     ----------------

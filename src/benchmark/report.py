@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Benchmark Report
@@ -8,7 +8,7 @@ Defines the BenchmarkReport model used to aggregate
 all benchmark results into a single object.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

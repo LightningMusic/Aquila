@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Dell BIOS Provider
@@ -11,7 +11,7 @@ firmware capabilities through the common BIOSProvider
 interface.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

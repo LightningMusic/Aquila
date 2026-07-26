@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 GPU Constants
@@ -7,7 +7,7 @@ GPU Constants
 Shared constants used by the GPU subsystem.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

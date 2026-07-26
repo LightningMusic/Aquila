@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 MSI BIOS Provider
@@ -12,7 +12,7 @@ firmware capabilities through the common BIOSProvider
 interface.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

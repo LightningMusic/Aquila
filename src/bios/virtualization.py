@@ -1,11 +1,11 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Virtualization Manager
 
 Provides virtualization capability detection and management
-for Project Orion.
+for Project Aquila.
 
 This module sits above BIOSManager and is responsible for
 determining whether a machine is capable of running modern
@@ -1143,7 +1143,7 @@ class VirtualizationManager:
 
     def export(self) -> dict[str, Any]:
         """
-        Export virtualization information for Orion
+        Export virtualization information for Aquila
         deployment reports.
         """
 

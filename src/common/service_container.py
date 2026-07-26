@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Service Container
 
-Provides a lightweight dependency injection container for Project Orion.
+Provides a lightweight dependency injection container for Project Aquila.
 
 The ServiceContainer owns singleton services used throughout the
 application and provides a central mechanism for service registration
 and retrieval.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT

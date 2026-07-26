@@ -1,5 +1,5 @@
 """
-Project Orion
+Project Aquila
 =============
 
 BIOS Manager
@@ -9,11 +9,11 @@ and firmware configuration for supported BIOS/UEFI
 vendors.
 
 This manager acts as the single entry point for the
-rest of Orion. Individual vendor implementations are
+rest of Aquila. Individual vendor implementations are
 handled by provider classes under bios.providers.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -43,7 +43,7 @@ class BIOSManager:
     • Detect firmware
     • Select correct provider
     • Configure firmware
-    • Expose common API to Orion
+    • Expose common API to Aquila
     • Generate firmware reports
     """
 
@@ -173,7 +173,7 @@ class BIOSManager:
         """
         Returns a valid provider.
 
-        If validation fails, Orion automatically performs
+        If validation fails, Aquila automatically performs
         another firmware detection.
         """
 
@@ -611,7 +611,7 @@ class BIOSManager:
         Performs the firmware configuration required for
         unattended Proxmox installation.
 
-        This method is intended to be called by Orion's
+        This method is intended to be called by Aquila's
         deployment workflow before the machine reboots
         into the installer.
         """
@@ -872,7 +872,7 @@ class BIOSManager:
     def prepare_virtualization_environment(self) -> bool:
         """
         Configures firmware with the settings recommended
-        for Orion Proxmox deployments.
+        for Aquila Proxmox deployments.
 
         This prepares the system for:
             • Proxmox VE
@@ -991,7 +991,7 @@ class BIOSManager:
         """
         Sets the battery charging limit.
 
-        Orion commonly uses 80% for always-on Proxmox
+        Aquila commonly uses 80% for always-on Proxmox
         nodes to reduce long-term battery wear.
         """
 
@@ -1039,20 +1039,20 @@ class BIOSManager:
         return provider.disable_battery_health_mode()
 
     # =====================================================
-    # Recommended Orion Configuration
+    # Recommended Aquila Configuration
     # =====================================================
 
-    def apply_orion_defaults(self) -> bool:
+    def apply_aquila_defaults(self) -> bool:
         """
         Applies the firmware configuration recommended
-        for Orion deployment.
+        for Aquila deployment.
 
         These defaults are safe for nearly every
         Proxmox node.
         """
 
         logger.info(
-            "Applying Orion firmware defaults..."
+            "Applying Aquila firmware defaults..."
         )
 
         success = True
@@ -1115,7 +1115,7 @@ class BIOSManager:
         """
         Alias for report().
 
-        Used by Orion reporting components.
+        Used by Aquila reporting components.
         """
 
         return self.report()

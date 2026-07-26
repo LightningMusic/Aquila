@@ -1,17 +1,17 @@
 """
-Project Orion
+Project Aquila
 =============
 
 Networking Constants
 
 Defines networking-related constants used throughout
-Project Orion.
+Project Aquila.
 
 This module centralizes network defaults, protocols,
 timeouts, ports, interface names, and cluster settings.
 
 Author:
-    Project Orion Development Team
+    Project Aquila Development Team
 
 License:
     MIT
@@ -91,7 +91,7 @@ IPERF3_PORT = 5201
 # Hostnames
 # ----------------------------------------------------------------------
 
-DEFAULT_HOSTNAME_PREFIX = "orion-node"
+DEFAULT_HOSTNAME_PREFIX = "aquila-node"
 
 MAX_HOSTNAME_LENGTH = 63
 
@@ -101,7 +101,7 @@ DEFAULT_DOMAIN = "local"
 # Cluster
 # ----------------------------------------------------------------------
 
-DEFAULT_CLUSTER_NAME = "orion-cluster"
+DEFAULT_CLUSTER_NAME = "aquila-cluster"
 
 DEFAULT_NODE_PREFIX = "node"
 
