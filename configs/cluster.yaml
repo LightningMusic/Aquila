@@ -1,0 +1,32 @@
+# Project Aquila - Cluster Configuration
+#
+# The target Proxmox cluster a node joins during Bootstrap.
+#
+# Schema: src/config/schemas/cluster_schema.py (ClusterConfig)
+# SRS references: Section 9.7/9.13, REQ-BOOT-012, REQ-BOOT-013,
+# REQ-NET-010.
+
+schema_version: 1
+
+# Human-readable cluster name and the host/IP of an existing cluster
+# member Bootstrap joins through.
+cluster_name: ""
+primary_node_host: ""
+
+# Proxmox VE API port.
+api_port: 8006
+
+# Role this node takes on: standalone | cluster_member | cluster_master
+node_role: cluster_member
+
+# Optional shared storage pool name to attach to, if the cluster
+# provides one.
+shared_storage_name: null
+
+verify_tls: true
+reachability_timeout_seconds: 30
+
+# The cluster join token/password is never stored in this file
+# (REQ-SEC-008/REQ-SEC-009). Set the environment variable named below
+# on the deployment medium or Deployment Controller instead.
+join_token_env_var: AQUILA_CLUSTER_JOIN_TOKEN

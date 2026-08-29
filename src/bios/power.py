@@ -116,7 +116,7 @@ class PowerConfiguration:
     fast_startup: bool = True
 
     additional_settings: dict[str, Any] = field(
-        default_factory=dict
+        default_factory=lambda: {}
     )
 
 

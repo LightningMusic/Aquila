@@ -31,6 +31,8 @@ DEPLOYMENT_LOGGER = "aquila.deployment"
 
 RECOVERY_LOGGER = "aquila.recovery"
 
+PREPARATION_LOGGER = "aquila.preparation"
+
 INSPECTION_LOGGER = "aquila.inspection"
 
 PROVISIONING_LOGGER = "aquila.provisioning"
@@ -88,6 +90,8 @@ APPLICATION_LOG_FILE = "application.log"
 DEPLOYMENT_LOG_FILE = "deployment.log"
 
 RECOVERY_LOG_FILE = "recovery.log"
+
+PREPARATION_LOG_FILE = "preparation.log"
 
 INSPECTION_LOG_FILE = "inspection.log"
 
@@ -243,6 +247,8 @@ __all__ = [
     "NETWORK_LOGGER",
     "PERFORMANCE_LOG_FILE",
     "PERFORMANCE_LOGGER",
+    "PREPARATION_LOG_FILE",
+    "PREPARATION_LOGGER",
     "PROVISIONING_LOG_FILE",
     "PROVISIONING_LOGGER",
     "QUIET_MODE",

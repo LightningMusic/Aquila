@@ -377,9 +377,18 @@ class DiskHealth(Enum):
 
 class SanitizationMethod(Enum):
     """
-    Supported disk sanitization methods.
+    Supported disk sanitization methods (REQ-PREP-014).
+
+    ATA and NVMe Secure Erase are kept as distinct members --
+    rather than a single combined ``SECURE_ERASE`` -- because
+    REQ-PREP-014 lists them as separate, independently-supported
+    methods ("ATA Secure Erase (when supported)" / "NVMe Secure
+    Erase (when supported)"): a target drive may support one but not
+    the other, and the Preparation Engine needs to be able to name
+    which one it used in its sanitization report (REQ-PREP-019).
     """
 
     QUICK = auto()
     FULL = auto()
-    SECURE_ERASE = auto()
+    ATA_SECURE_ERASE = auto()
+    NVME_SECURE_ERASE = auto()

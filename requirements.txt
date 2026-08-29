@@ -1,0 +1,17 @@
+# Project Aquila - Python dependencies
+#
+# Core dependencies required by the code currently implemented under
+# src/. As additional subsystems are built out, add their real
+# dependencies here rather than assuming they're installed.
+
+# config/ - YAML is the primary format for configs/*.yaml
+# (src/config/loaders/yaml_loader.py).
+pyyaml>=6.0
+
+# bios/ - Windows firmware/hardware queries (WMI). Optional at
+# runtime: every bios/providers/*.py call site that uses it is
+# wrapped in a try/except ImportError and degrades to an
+# honestly-unsupported result when it's absent, but install it on
+# Windows deployment media for real firmware data collection.
+wmi>=1.5.1; sys_platform == "win32"
+pywin32>=306; sys_platform == "win32"

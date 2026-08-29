@@ -1,0 +1,38 @@
+# Project Aquila - Network Configuration
+#
+# How the Networking Engine acquires an IP address and which
+# connectivity checks must pass before Aquila Node Provisioning
+# (Workflow B) is allowed to proceed. Not used by Device Retirement
+# (Workflow A), which requires no network connectivity.
+#
+# Schema: src/config/schemas/network_schema.py (NetworkConfig)
+# SRS references: Section 9.13, REQ-NET-001 through REQ-NET-014.
+
+schema_version: 1
+
+# One of: dhcp | static_ipv4 | static_ipv6
+ip_assignment_method: dhcp
+
+# Required when ip_assignment_method is static_ipv4.
+static_ipv4_address: null
+static_ipv4_netmask: null
+static_ipv4_gateway: null
+
+# Required when ip_assignment_method is static_ipv6.
+static_ipv6_address: null
+static_ipv6_prefix_length: null
+static_ipv6_gateway: null
+
+# DNS servers to use. When empty, DHCP-provided (or system-default)
+# DNS servers are used instead.
+dns_servers: []
+
+# Connectivity checks Provisioning must pass before it proceeds
+# (REQ-NET-004, REQ-NET-007, REQ-NET-008). Deployment pauses, rather
+# than fails outright, until these are satisfied (SRS Section 9.13).
+require_ethernet_link: true
+require_gateway_reachability: true
+require_dns_resolution: true
+
+connectivity_check_timeout_seconds: 30
+connectivity_check_retry_count: 3

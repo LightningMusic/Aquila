@@ -1,0 +1,26 @@
+# Project Aquila - Benchmark Configuration
+#
+# Which benchmark suites the Benchmark Engine runs after a
+# successful Bootstrap, and whether a benchmark failure is allowed to
+# block a node from entering operational service.
+#
+# Schema: src/config/schemas/benchmark_schema.py (BenchmarkConfig)
+# SRS references: Section 9.11, REQ-BENCH-001 through REQ-BENCH-010.
+
+schema_version: 1
+
+enabled: true
+
+run_cpu: true
+run_gpu: true
+run_memory: true
+run_storage: true
+run_network: true
+run_thermal: true
+
+# Per SRS Section 9.11: "Benchmarking shall not prevent the node from
+# entering operational service unless required by deployment
+# policy." Set true to make a benchmark failure block deployment.
+fail_deployment_on_benchmark_failure: false
+
+timeout_seconds: 300

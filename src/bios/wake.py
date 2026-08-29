@@ -82,9 +82,9 @@ class WakeStatus:
 
     # Diagnostics
 
-    warnings: list[str] = field(default_factory=list)
-    notes: list[str] = field(default_factory=list)
-    additional_information: dict[str, Any] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=lambda: [])
+    notes: list[str] = field(default_factory=lambda: [])
+    additional_information: dict[str, Any] = field(default_factory=lambda: {})
 
 
 # ==========================================================
@@ -186,7 +186,7 @@ class WakeManager:
 
     def detect_wake_on_lan(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if provider.wake_on_lan_supported():
 
@@ -214,13 +214,13 @@ class WakeManager:
 
     def detect_rtc_alarm(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if provider.rtc_alarm_supported():
+        if provider.rtc_wake_supported():
 
             self._status.rtc_supported = True
 
-            enabled = provider.is_rtc_alarm_enabled()
+            enabled = provider.is_rtc_wake_enabled()
 
             self._status.rtc_alarm = (
                 WakeCapability.ENABLED
@@ -242,7 +242,7 @@ class WakeManager:
 
     def detect_usb_wake(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if provider.usb_wake_supported():
 
@@ -270,7 +270,7 @@ class WakeManager:
 
     def detect_keyboard_wake(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if provider.keyboard_wake_supported():
 
@@ -298,7 +298,7 @@ class WakeManager:
 
     def detect_mouse_wake(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if provider.mouse_wake_supported():
 
@@ -326,7 +326,7 @@ class WakeManager:
 
     def detect_pcie_wake(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if provider.pcie_wake_supported():
 
@@ -366,13 +366,13 @@ class WakeManager:
 
     def detect_lid_open(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if provider.lid_open_wake_supported():
+        if provider.lid_wake_supported():
 
             self._status.lid_supported = True
 
-            enabled = provider.is_lid_open_wake_enabled()
+            enabled = provider.is_lid_wake_enabled()
 
             self._status.lid_open = (
                 WakeCapability.ENABLED
@@ -394,11 +394,11 @@ class WakeManager:
 
     def detect_ac_power(self) -> WakeCapability:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if provider.ac_power_restore_supported():
+        if provider.restore_power_on_ac_supported():
 
-            enabled = provider.is_ac_power_restore_enabled()
+            enabled = provider.restore_power_on_ac_enabled()
 
             self._status.ac_power = (
                 WakeCapability.ENABLED
@@ -419,28 +419,20 @@ class WakeManager:
     # ======================================================
 
     def detect_thunderbolt(self) -> WakeCapability:
+        """
+        Report Thunderbolt wake as unsupported.
 
-        provider = self._bios.provider()
+        No method for Thunderbolt wake exists on the current
+        ``BIOSProvider`` contract -- it was never implemented by any
+        Version 1.0 provider, and no vendor tooling used by this project
+        exposes a scriptable interface for it. Rather than call a
+        nonexistent provider method, this is reported unsupported
+        directly.
+        """
 
-        if provider.thunderbolt_wake_supported():
+        self._status.thunderbolt_supported = False
 
-            self._status.thunderbolt_supported = True
-
-            enabled = (
-                provider.is_thunderbolt_wake_enabled()
-            )
-
-            self._status.thunderbolt = (
-                WakeCapability.ENABLED
-                if enabled
-                else WakeCapability.DISABLED
-            )
-
-        else:
-
-            self._status.thunderbolt = (
-                WakeCapability.UNSUPPORTED
-            )
+        self._status.thunderbolt = WakeCapability.UNSUPPORTED
 
         return self._status.thunderbolt
 
@@ -547,7 +539,7 @@ class WakeManager:
         Enable Wake-on-LAN through the BIOS provider.
         """
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.wake_on_lan_supported():
             self._add_warning("Wake-on-LAN is not supported.")
@@ -565,7 +557,7 @@ class WakeManager:
         Disable Wake-on-LAN.
         """
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.wake_on_lan_supported():
             self._add_warning("Wake-on-LAN is not supported.")
@@ -582,13 +574,13 @@ class WakeManager:
 
     def enable_rtc_alarm(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.rtc_alarm_supported():
+        if not provider.rtc_wake_supported():
             self._add_warning("RTC wake is not supported.")
             return False
 
-        success = provider.enable_rtc_alarm()
+        success = provider.enable_rtc_wake()
 
         if success:
             self._status.rtc_alarm = WakeCapability.ENABLED
@@ -597,13 +589,13 @@ class WakeManager:
 
     def disable_rtc_alarm(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.rtc_alarm_supported():
+        if not provider.rtc_wake_supported():
             self._add_warning("RTC wake is not supported.")
             return False
 
-        success = provider.disable_rtc_alarm()
+        success = provider.disable_rtc_wake()
 
         if success:
             self._status.rtc_alarm = WakeCapability.DISABLED
@@ -614,7 +606,7 @@ class WakeManager:
 
     def enable_usb_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.usb_wake_supported():
             self._add_warning("USB wake is not supported.")
@@ -629,7 +621,7 @@ class WakeManager:
 
     def disable_usb_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.usb_wake_supported():
             self._add_warning("USB wake is not supported.")
@@ -646,7 +638,7 @@ class WakeManager:
 
     def enable_keyboard_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.keyboard_wake_supported():
             self._add_warning("Keyboard wake is not supported.")
@@ -661,7 +653,7 @@ class WakeManager:
 
     def disable_keyboard_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.keyboard_wake_supported():
             self._add_warning("Keyboard wake is not supported.")
@@ -678,7 +670,7 @@ class WakeManager:
 
     def enable_mouse_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.mouse_wake_supported():
             self._add_warning("Mouse wake is not supported.")
@@ -693,7 +685,7 @@ class WakeManager:
 
     def disable_mouse_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.mouse_wake_supported():
             self._add_warning("Mouse wake is not supported.")
@@ -710,7 +702,7 @@ class WakeManager:
 
     def enable_pcie_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.pcie_wake_supported():
             self._add_warning("PCIe wake is not supported.")
@@ -725,7 +717,7 @@ class WakeManager:
 
     def disable_pcie_wake(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
         if not provider.pcie_wake_supported():
             self._add_warning("PCIe wake is not supported.")
@@ -742,13 +734,13 @@ class WakeManager:
 
     def enable_lid_open(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.lid_open_wake_supported():
+        if not provider.lid_wake_supported():
             self._add_warning("Lid wake is not supported.")
             return False
 
-        success = provider.enable_lid_open_wake()
+        success = provider.enable_lid_wake()
 
         if success:
             self._status.lid_open = WakeCapability.ENABLED
@@ -757,13 +749,13 @@ class WakeManager:
 
     def disable_lid_open(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.lid_open_wake_supported():
+        if not provider.lid_wake_supported():
             self._add_warning("Lid wake is not supported.")
             return False
 
-        success = provider.disable_lid_open_wake()
+        success = provider.disable_lid_wake()
 
         if success:
             self._status.lid_open = WakeCapability.DISABLED
@@ -774,13 +766,13 @@ class WakeManager:
 
     def enable_ac_power_restore(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.ac_power_restore_supported():
+        if not provider.restore_power_on_ac_supported():
             self._add_warning("AC power restore is not supported.")
             return False
 
-        success = provider.enable_ac_power_restore()
+        success = provider.enable_restore_power_on_ac()
 
         if success:
             self._status.ac_power = WakeCapability.ENABLED
@@ -789,13 +781,13 @@ class WakeManager:
 
     def disable_ac_power_restore(self) -> bool:
 
-        provider = self._bios.provider()
+        provider = self._bios.provider
 
-        if not provider.ac_power_restore_supported():
+        if not provider.restore_power_on_ac_supported():
             self._add_warning("AC power restore is not supported.")
             return False
 
-        success = provider.disable_ac_power_restore()
+        success = provider.disable_restore_power_on_ac()
 
         if success:
             self._status.ac_power = WakeCapability.DISABLED
@@ -805,34 +797,22 @@ class WakeManager:
     # ======================================================
 
     def enable_thunderbolt_wake(self) -> bool:
+        """
+        Always returns False. No method for Thunderbolt wake exists on
+        the current ``BIOSProvider`` contract -- see
+        :meth:`detect_thunderbolt`.
+        """
 
-        provider = self._bios.provider()
-
-        if not provider.thunderbolt_wake_supported():
-            self._add_warning("Thunderbolt wake is not supported.")
-            return False
-
-        success = provider.enable_thunderbolt_wake()
-
-        if success:
-            self._status.thunderbolt = WakeCapability.ENABLED
-
-        return success
+        self._add_warning("Thunderbolt wake is not supported.")
+        return False
 
     def disable_thunderbolt_wake(self) -> bool:
+        """
+        Always returns False. See :meth:`enable_thunderbolt_wake`.
+        """
 
-        provider = self._bios.provider()
-
-        if not provider.thunderbolt_wake_supported():
-            self._add_warning("Thunderbolt wake is not supported.")
-            return False
-
-        success = provider.disable_thunderbolt_wake()
-
-        if success:
-            self._status.thunderbolt = WakeCapability.DISABLED
-
-        return success
+        self._add_warning("Thunderbolt wake is not supported.")
+        return False
 
     # ======================================================
     # Validation

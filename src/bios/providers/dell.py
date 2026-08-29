@@ -37,9 +37,10 @@ from typing import (
     Set,
     Tuple,
     Union,
+    cast,
 )
 
-from src.bios.models import (
+from ..models import (
     BIOSMode,
     BIOSVendor,
     BootDevice,
@@ -47,7 +48,7 @@ from src.bios.models import (
     FirmwareInformation,
     TPMState,
 )
-from src.bios.providers.default import DefaultProvider
+from .default import DefaultProvider
 
 
 PROVIDER_VERSION = "2.4.0"
@@ -519,7 +520,7 @@ class DellProvider(DefaultProvider):
                 return devices
 
         rows = self._dell_wmi_rows("DCIM_BootConfigSetting")
-        devices = []
+        devices: List[BootDevice] = []
         for index, row in enumerate(rows):
             data = self._object_to_dict(row)
             name = self._mapping_value(
@@ -1415,7 +1416,16 @@ class DellProvider(DefaultProvider):
         if isinstance(config_data, dict):
             payload = self._configuration_dict_to_cctk(config_data)
             suffix = ".ini"
-        elif isinstance(config_data, str):
+        elif isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            config_data, str
+        ):
+            # Statically redundant given this method's declared
+            # ``Union[str, Dict[str, Any]]`` signature, but genuinely
+            # meaningful at runtime: ``config_data`` is frequently handed
+            # in from a deserialized JSON/YAML configuration file, which
+            # Python does not enforce against the type hint. The final
+            # ``else`` branch below depends on this check having actually
+            # run rather than being assumed true.
             candidate = Path(config_data).expanduser()
             if candidate.is_file():
                 try:
@@ -1752,21 +1762,33 @@ class DellProvider(DefaultProvider):
         power = summary["power"]
         diagnostics = report["diagnostics"]
 
+        # ``report()`` is assembled above from this class's own already-typed
+        # accessors, but its return type is ``Dict[str, Any]`` -- the nested
+        # sections are only known to be dict-shaped once inspected here, so
+        # each is cast to the shape its own ``isinstance`` check confirmed
+        # rather than letting "Unknown" spread through the rest of this
+        # formatter.
         firmware_version = ""
         if isinstance(firmware, dict):
+            typed_firmware = cast(Dict[str, Any], firmware)
             firmware_version = str(
-                firmware.get("bios_version")
-                or firmware.get("version")
+                typed_firmware.get("bios_version")
+                or typed_firmware.get("version")
                 or ""
             )
 
-        tpm = security.get("tpm", {})
-        if not isinstance(tpm, dict):
-            tpm = {}
+        tpm_raw = security.get("tpm", {})
+        tpm: Dict[str, Any] = (
+            cast(Dict[str, Any], tpm_raw) if isinstance(tpm_raw, dict) else {}
+        )
 
-        charge_limits = power.get("charge_limits", [0, 100])
-        if not isinstance(charge_limits, list) or len(charge_limits) != 2:
-            charge_limits = [0, 100]
+        charge_limits_raw = power.get("charge_limits", [0, 100])
+        charge_limits: List[Any] = (
+            cast(List[Any], charge_limits_raw)
+            if isinstance(charge_limits_raw, list)
+            and len(cast(List[Any], charge_limits_raw)) == 2
+            else [0, 100]
+        )
 
         lines = [
             "# Dell BIOS Fleet Audit",
@@ -1915,9 +1937,12 @@ class DellProvider(DefaultProvider):
         findings: List[Dict[str, Any]] = []
 
         tpm = self.tpm_state()
-        tpm_data = self._serialize_value(tpm)
-        if not isinstance(tpm_data, dict):
-            tpm_data = {}
+        tpm_data_raw = self._serialize_value(tpm)
+        tpm_data: Dict[str, Any] = (
+            cast(Dict[str, Any], tpm_data_raw)
+            if isinstance(tpm_data_raw, dict)
+            else {}
+        )
 
         if not self._coerce_bool(tpm_data.get("present"), False):
             findings.append(
@@ -2805,7 +2830,7 @@ class DellProvider(DefaultProvider):
 
         if isinstance(result, dict):
             return_value = self._mapping_value(
-                result,
+                cast(Dict[str, Any], result),
                 (
                     "ReturnValue",
                     "return_value",
@@ -3528,11 +3553,11 @@ class DellProvider(DefaultProvider):
                 parsed_json = None
 
             if isinstance(parsed_json, dict):
-                return parsed_json
+                return cast(Dict[str, Any], parsed_json)
             if isinstance(parsed_json, list):
                 return {
                     "provider": self.provider_name(),
-                    "attributes": parsed_json,
+                    "attributes": cast(List[Any], parsed_json),
                 }
 
         if stripped.startswith("<"):
@@ -3594,12 +3619,13 @@ class DellProvider(DefaultProvider):
         lines: List[str] = []
 
         if isinstance(source, dict):
+            typed_source = cast(Dict[str, Any], source)
             scalar_items: Dict[str, Any] = {}
             section_items: Dict[str, Dict[str, Any]] = {}
 
-            for key, value in source.items():
+            for key, value in typed_source.items():
                 if isinstance(value, dict):
-                    section_items[str(key)] = value
+                    section_items[str(key)] = cast(Dict[str, Any], value)
                 elif isinstance(value, (str, int, float, bool)):
                     scalar_items[str(key)] = value
 
@@ -3621,11 +3647,12 @@ class DellProvider(DefaultProvider):
 
         elif isinstance(source, list):
             lines.append("[BIOS]")
-            for entry in source:
+            for entry in cast(List[Any], source):
                 if not isinstance(entry, dict):
                     continue
+                typed_entry = cast(Dict[str, Any], entry)
                 name = self._mapping_value(
-                    entry,
+                    typed_entry,
                     (
                         "AttributeName",
                         "Name",
@@ -3633,7 +3660,7 @@ class DellProvider(DefaultProvider):
                     ),
                 )
                 value = self._mapping_value(
-                    entry,
+                    typed_entry,
                     (
                         "CurrentValue",
                         "Value",
@@ -3696,16 +3723,17 @@ class DellProvider(DefaultProvider):
             return
 
         if isinstance(value, dict):
-            for key in sorted(value, key=str):
+            typed_value = cast(Dict[Any, Any], value)
+            for key in sorted(typed_value, key=str):
                 self._append_xml_value(
                     element,
                     str(key),
-                    value[key],
+                    typed_value[key],
                 )
             return
 
         if isinstance(value, (list, tuple, set)):
-            for item in value:
+            for item in cast("List[Any] | tuple[Any, ...] | set[Any]", value):
                 self._append_xml_value(element, "item", item)
             return
 
@@ -3752,16 +3780,25 @@ class DellProvider(DefaultProvider):
         admin_password: Optional[str],
     ) -> bool:
         """Apply scalar BIOS attributes using Dell WMI as a fallback."""
-        attributes = configuration.get(
+        # ``configuration`` originates from a parsed configuration payload
+        # (JSON, XML-derived, or CCTK INI) whose shape is only known once
+        # it has actually been inspected -- the surrounding ``isinstance``
+        # checks are the real type discrimination, so the branches below
+        # cast to the shape each one has already confirmed rather than
+        # letting pyright's ``Any``-narrowed-to-bare-``dict``/``list``
+        # inference spread "Unknown" through the rest of the method.
+        attributes: Any = configuration.get(
             "attributes",
             configuration,
         )
         flattened: Dict[str, str] = {}
 
         if isinstance(attributes, dict):
-            for key, value in attributes.items():
+            typed_attributes = cast(Dict[str, Any], attributes)
+            for key, value in typed_attributes.items():
                 if isinstance(value, dict):
-                    for child_key, child_value in value.items():
+                    typed_value = cast(Dict[str, Any], value)
+                    for child_key, child_value in typed_value.items():
                         if isinstance(
                             child_value,
                             (str, int, float, bool),
@@ -3771,12 +3808,14 @@ class DellProvider(DefaultProvider):
                     flattened[str(key)] = str(value)
 
         elif isinstance(attributes, list):
-            for entry in attributes:
+            typed_entries = cast(List[Any], attributes)
+            for entry in typed_entries:
                 if not isinstance(entry, dict):
                     continue
 
+                typed_entry = cast(Dict[str, Any], entry)
                 name = self._mapping_value(
-                    entry,
+                    typed_entry,
                     (
                         "AttributeName",
                         "Name",
@@ -3784,7 +3823,7 @@ class DellProvider(DefaultProvider):
                     ),
                 )
                 value = self._mapping_value(
-                    entry,
+                    typed_entry,
                     (
                         "CurrentValue",
                         "Value",
@@ -3981,8 +4020,11 @@ class DellProvider(DefaultProvider):
         if isinstance(value, (list, tuple, set)):
             if not value:
                 return default
+            typed_value = cast(
+                "list[Any] | tuple[Any, ...] | set[Any]", value
+            )
             return DellProvider._coerce_bool(
-                next(iter(value)),
+                next(iter(typed_value)),
                 default=default,
             )
 
@@ -4071,9 +4113,12 @@ class DellProvider(DefaultProvider):
                     errors="replace",
                 ).strip()
             elif isinstance(value, (list, tuple, set)):
+                typed_value = cast(
+                    "list[Any] | tuple[Any, ...] | set[Any]", value
+                )
                 text = ", ".join(
                     str(item).strip()
-                    for item in value
+                    for item in typed_value
                     if str(item).strip()
                 )
             else:
@@ -4107,19 +4152,22 @@ class DellProvider(DefaultProvider):
         if isinstance(value, dict):
             return {
                 str(key): self._safe_property_value(item)
-                for key, item in value.items()
+                for key, item in cast(Dict[Any, Any], value).items()
             }
 
         result: Dict[str, Any] = {}
 
         properties = getattr(value, "properties", None)
         if isinstance(properties, dict):
-            for key, item in properties.items():
+            for key, item in cast(Dict[Any, Any], properties).items():
                 result[str(key)] = self._safe_property_value(item)
 
         property_names = getattr(value, "_properties", None)
         if isinstance(property_names, (list, tuple, set)):
-            for name in property_names:
+            typed_property_names = cast(
+                "list[Any] | tuple[Any, ...] | set[Any]", property_names
+            )
+            for name in typed_property_names:
                 try:
                     result[str(name)] = self._safe_property_value(
                         getattr(value, str(name))
@@ -4142,7 +4190,7 @@ class DellProvider(DefaultProvider):
 
         instance_state = getattr(value, "__dict__", None)
         if isinstance(instance_state, dict):
-            for key, item in instance_state.items():
+            for key, item in cast(Dict[Any, Any], instance_state).items():
                 if str(key).startswith("_"):
                     continue
                 result.setdefault(
@@ -4206,13 +4254,15 @@ class DellProvider(DefaultProvider):
         if isinstance(value, dict):
             return {
                 str(key): self._safe_property_value(item)
-                for key, item in value.items()
+                for key, item in cast(Dict[Any, Any], value).items()
             }
 
         if isinstance(value, (list, tuple, set)):
             return [
                 self._safe_property_value(item)
-                for item in value
+                for item in cast(
+                    "list[Any] | tuple[Any, ...] | set[Any]", value
+                )
             ]
 
         return str(value)
@@ -4318,13 +4368,16 @@ class DellProvider(DefaultProvider):
         if isinstance(value, dict):
             return {
                 str(key): cls._serialize_value(item)
-                for key, item in value.items()
+                for key, item in cast(Dict[Any, Any], value).items()
             }
 
         if isinstance(value, (list, tuple, set, frozenset)):
             return [
                 cls._serialize_value(item)
-                for item in value
+                for item in cast(
+                    "list[Any] | tuple[Any, ...] | set[Any] | frozenset[Any]",
+                    value,
+                )
             ]
 
         model_dump = getattr(value, "model_dump", None)
@@ -4351,14 +4404,14 @@ class DellProvider(DefaultProvider):
                 str(name): cls._serialize_value(
                     getattr(value, str(name))
                 )
-                for name in dataclass_fields
+                for name in cast(Dict[Any, Any], dataclass_fields)
             }
 
         public_state = getattr(value, "__dict__", None)
         if isinstance(public_state, dict):
             return {
                 str(key): cls._serialize_value(item)
-                for key, item in public_state.items()
+                for key, item in cast(Dict[Any, Any], public_state).items()
                 if not str(key).startswith("_")
             }
 
@@ -4380,7 +4433,7 @@ class DellProvider(DefaultProvider):
             try:
                 data = model_dump()
                 if isinstance(data, dict):
-                    return data.get(name, "")
+                    return cast(Dict[str, Any], data).get(name, "")
             except Exception:
                 return ""
 
@@ -4389,7 +4442,7 @@ class DellProvider(DefaultProvider):
             try:
                 data = to_dict()
                 if isinstance(data, dict):
-                    return data.get(name, "")
+                    return cast(Dict[str, Any], data).get(name, "")
             except Exception:
                 return ""
 

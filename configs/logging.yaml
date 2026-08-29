@@ -1,0 +1,28 @@
+# Project Aquila - Logging Configuration
+#
+# Verbosity, retention, and output destinations for the Logging
+# Engine.
+#
+# Schema: src/config/schemas/logging_schema.py (LoggingConfig)
+# SRS references: Section 9.9, REQ-LOG-001 through REQ-LOG-015.
+
+schema_version: 1
+
+# One of: DEBUG | INFO | WARNING | ERROR | CRITICAL
+level: INFO
+
+# Directory log files are written to. When null, defaults to
+# common.paths.LOG_DIR (build/logs) so this stays in sync with the
+# rest of the project layout automatically.
+log_directory: null
+
+max_log_size_mb: 10
+backup_count: 5
+
+console_output: true
+file_output: true
+
+# Mask values under keys such as password/token/secret before they
+# are written to a log record (REQ-SEC-010's guarantee, applied to
+# Aquila's own logs).
+redact_sensitive_fields: true

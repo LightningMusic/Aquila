@@ -1,0 +1,27 @@
+# Project Aquila - Deployment Controller Configuration
+#
+# How Aquila deployment media and deployed nodes reach the
+# Deployment Controller.
+#
+# Schema: src/config/schemas/controller_schema.py (ControllerConfig)
+# SRS references: Section 9.7, REQ-CTRL-001 through REQ-CTRL-021,
+# REQ-CONF-013.
+
+schema_version: 1
+
+host: ""
+port: 443
+
+use_tls: true
+verify_tls_certificate: true
+
+api_base_path: /api/v1
+
+connection_timeout_seconds: 10
+retry_count: 3
+retry_backoff_seconds: 2.0
+
+# The node's Deployment Controller API credential is never stored in
+# this file (REQ-SEC-008/REQ-SEC-009/REQ-SEC-010). Set the
+# environment variable named below instead.
+authentication_token_env_var: AQUILA_CONTROLLER_TOKEN

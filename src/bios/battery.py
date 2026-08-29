@@ -25,7 +25,7 @@ import logging
 import platform
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -72,9 +72,11 @@ class BatteryInformation:
     charge_limit: int | None = None
 
     manufacture_date: str = ""
-    first_seen: datetime = field(default_factory=datetime.utcnow)
+    first_seen: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
-    additional_data: dict[str, Any] = field(default_factory=dict)
+    additional_data: dict[str, Any] = field(default_factory=lambda: {})
 
 
 # ==========================================================

@@ -26,7 +26,7 @@ import platform
 from copy import deepcopy
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, Dict, Final, cast
 from collections.abc import Sequence
 
 from ..models import (
@@ -165,7 +165,14 @@ class DefaultProvider(BIOSProvider):
     @staticmethod
     def _normalize_setting_name(name: str) -> str:
         """Validate and normalize a firmware setting name."""
-        if not isinstance(name, str):
+        # Statically redundant given this method's declared ``name: str``
+        # signature, but genuinely meaningful at runtime: vendor providers
+        # call this with setting names sourced from configuration files,
+        # sysfs/WMI enumeration, and CLI input, none of which Python
+        # enforces against the type hint.
+        if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            name, str
+        ):
             raise TypeError("Firmware setting names must be strings.")
 
         normalized = name.strip()
@@ -1222,7 +1229,15 @@ class DefaultProvider(BIOSProvider):
 
     def set_charge_limit(self, percent: int) -> bool:
         """Set the battery charge limit."""
-        if not isinstance(percent, int) or isinstance(percent, bool):
+        # Statically redundant given this method's declared ``percent: int``
+        # signature, but genuinely meaningful at runtime -- see the matching
+        # comment on ``LenovoProvider.set_charge_limit`` for the rationale.
+        if (
+            not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+                percent, int
+            )
+            or isinstance(percent, bool)
+        ):
             self._record_error(
                 "set_charge_limit",
                 "Battery charge limit must be an integer.",
@@ -1719,11 +1734,17 @@ class DefaultProvider(BIOSProvider):
         if isinstance(value, dict):
             return {
                 str(key): cls._serialize_value(item)
-                for key, item in value.items()
+                for key, item in cast(Dict[Any, Any], value).items()
             }
 
         if isinstance(value, (list, tuple, set, frozenset)):
-            return [cls._serialize_value(item) for item in value]
+            return [
+                cls._serialize_value(item)
+                for item in cast(
+                    "list[Any] | tuple[Any, ...] | set[Any] | frozenset[Any]",
+                    value,
+                )
+            ]
 
         to_dict = getattr(value, "to_dict", None)
         if callable(to_dict):
@@ -1744,7 +1765,7 @@ class DefaultProvider(BIOSProvider):
         if isinstance(public_state, dict):
             return {
                 str(key): cls._serialize_value(item)
-                for key, item in public_state.items()
+                for key, item in cast(Dict[Any, Any], public_state).items()
                 if not str(key).startswith("_")
             }
 
@@ -1755,7 +1776,7 @@ class DefaultProvider(BIOSProvider):
         serialized = self._serialize_value(self.report())
 
         if isinstance(serialized, dict):
-            return serialized
+            return cast(Dict[str, Any], serialized)
 
         return {"report": serialized}
 

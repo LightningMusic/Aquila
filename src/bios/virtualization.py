@@ -128,15 +128,15 @@ class VirtualizationStatus:
     proxmox_ready: bool = False
 
     warnings: list[str] = field(
-        default_factory=list
+        default_factory=lambda: []
     )
 
     notes: list[str] = field(
-        default_factory=list
+        default_factory=lambda: []
     )
 
     additional_information: dict[str, Any] = field(
-        default_factory=dict
+        default_factory=lambda: {}
     )
 
 

@@ -110,7 +110,22 @@ class ApplicationStartedEvent(Event):
     """
 
     def __init__(self) -> None:
-        super().__init__(
+        # NOTE: this must use the explicit two-argument ``super(...)``
+        # form, not bare ``super()``. ``@dataclass(slots=True)``
+        # rebuilds the decorated class into a *new* class object (Python
+        # cannot add ``__slots__`` to an already-created class), which
+        # happens *after* this method body has already been compiled.
+        # Bare ``super()`` relies on an implicit ``__class__`` closure
+        # cell that was bound to the pre-rebuild class object, so at
+        # call time it no longer matches ``type(self)`` and raises
+        # ``TypeError: super(type, obj): obj must be an instance or
+        # subtype of type``. The explicit form below instead looks up
+        # ``ApplicationStartedEvent`` by name in the module namespace at
+        # call time, which by then already points at the rebuilt,
+        # slotted class -- so it always matches ``self``. Every
+        # ``__init__`` below that calls ``super()`` needs the same fix,
+        # for the same reason.
+        super(ApplicationStartedEvent, self).__init__(
             event_type="ApplicationStarted",
             source="core.application",
         )
@@ -123,7 +138,7 @@ class ApplicationStoppingEvent(Event):
     """
 
     def __init__(self) -> None:
-        super().__init__(
+        super(ApplicationStoppingEvent, self).__init__(
             event_type="ApplicationStopping",
             source="core.application",
         )
@@ -140,7 +155,7 @@ class ConfigurationLoadedEvent(Event):
         configuration_name: str,
     ) -> None:
 
-        super().__init__(
+        super(ConfigurationLoadedEvent, self).__init__(
             event_type="ConfigurationLoaded",
             source="config.manager",
             payload={
@@ -160,7 +175,7 @@ class ServiceRegisteredEvent(Event):
         service_name: str,
     ) -> None:
 
-        super().__init__(
+        super(ServiceRegisteredEvent, self).__init__(
             event_type="ServiceRegistered",
             source="common.service_container",
             payload={
@@ -180,7 +195,7 @@ class DeploymentStartedEvent(Event):
         node_name: str,
     ) -> None:
 
-        super().__init__(
+        super(DeploymentStartedEvent, self).__init__(
             event_type="DeploymentStarted",
             source="managers.deployment_manager",
             payload={
@@ -200,7 +215,7 @@ class DeploymentCompletedEvent(Event):
         node_name: str,
     ) -> None:
 
-        super().__init__(
+        super(DeploymentCompletedEvent, self).__init__(
             event_type="DeploymentCompleted",
             source="managers.deployment_manager",
             payload={
@@ -221,7 +236,7 @@ class ErrorEvent(Event):
         message: str,
     ) -> None:
 
-        super().__init__(
+        super(ErrorEvent, self).__init__(
             event_type="Error",
             source=source,
             payload={

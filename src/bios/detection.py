@@ -12,6 +12,21 @@ performed by Aquila. The rest of the application should
 never instantiate vendor providers directly. Instead,
 it requests the active provider through BIOSDetection.
 
+Rewrite notes (current provider architecture)
+----------------------------------------------
+Earlier revisions of this module built firmware identity itself, through
+fragile WMIC/PowerShell-CIM string scraping (modern Windows installations
+no longer ship WMIC by default) and a legacy, now-unused
+``bios.firmware.FirmwareInformation`` model, entirely independent of the
+providers it was selecting. Every current-generation provider
+(``bios.providers.*``) already collects its own firmware identity through
+real, tested mechanisms (WMI on Windows, SMBIOS sysfs on Linux) as part of
+``connect()``/``refresh()``. Detection therefore now does exactly one
+thing: ask each registered provider, in priority order, whether it
+recognizes the system, connect to the first one that does, and expose its
+already-collected ``bios.models.FirmwareInformation`` -- rather than
+duplicating that collection work through a second, less reliable path.
+
 Design Goals
 ------------
 * Automatic firmware detection
@@ -32,11 +47,9 @@ License:
 from __future__ import annotations
 
 import logging
-import platform
-import subprocess
 from typing import Type
 
-from bios.firmware import FirmwareInformation
+from bios.models import FirmwareInformation
 
 from bios.providers.base import BIOSProvider
 from bios.providers.acer import AcerProvider
@@ -53,7 +66,6 @@ from bios.providers.unknown import UnknownProvider
 logger = logging.getLogger(__name__)
 
 
-
 class BIOSDetection:
     """
     Detects the correct BIOS provider.
@@ -62,11 +74,9 @@ class BIOSDetection:
     running instance of Aquila.
     """
 
-    _provider: BIOSProvider | None = None
-
     def __init__(self) -> None:
 
-        self._firmware_information: FirmwareInformation | None = None
+        self._provider: BIOSProvider | None = None
 
         self._provider_registry: list[Type[BIOSProvider]] = [
             DellProvider,
@@ -86,76 +96,61 @@ class BIOSDetection:
 
     def provider(self) -> BIOSProvider:
         """
-        Return the active BIOS provider.
+        Return the active, connected BIOS provider.
 
-        Detection is performed only once.
+        Detection is performed only once; call :meth:`refresh` to force a
+        fresh detection pass.
         """
 
         if self._provider is not None:
             return self._provider
 
-        firmware = self.firmware_information()
+        self._provider = self._select_provider()
+
+        firmware = self._provider.firmware_information()
 
         logger.info(
             "Detected manufacturer: %s",
-            firmware.manufacturer,
+            firmware.manufacturer or "Unknown",
         )
-
         logger.info(
             "Detected BIOS vendor: %s",
-            firmware.vendor,
+            firmware.vendor.value,
         )
-
-        self._provider = self._select_provider(firmware)
-
         logger.info(
-            "Using provider: %s",
-            self._provider.__class__.__name__,
+            "Using provider: %s (%s)",
+            self._provider.provider_name(),
+            type(self._provider).__name__,
         )
 
         return self._provider
 
-    def firmware_information(
-        self,
-    ) -> FirmwareInformation:
+    def firmware_information(self) -> FirmwareInformation:
         """
-        Return firmware information.
+        Return the active provider's firmware information.
 
-        The information is cached after the first
-        collection.
+        The information is collected once, when the provider connects, and
+        cached by the provider itself; call :meth:`refresh` to force a
+        fresh detection and collection pass.
         """
 
-        if self._firmware_information is not None:
-            return self._firmware_information
-
-        self._firmware_information = FirmwareInformation(
-            manufacturer=self._manufacturer(),
-            vendor=self._vendor(),
-            version=self._version(),
-            release_date=self._release_date(),
-            serial_number=self._serial_number(),
-            uuid=self._uuid(),
-            model=self._model(),
-            bios_mode=self._bios_mode(),
-        )
-
-        return self._firmware_information
+        return self.provider().firmware_information()
 
     # ======================================================
     # Provider Selection
     # ======================================================
 
-    def _select_provider(
-        self,
-        firmware: FirmwareInformation,
-    ) -> BIOSProvider:
+    def _select_provider(self) -> BIOSProvider:
         """
-        Determine the correct BIOS provider.
+        Determine and connect to the correct BIOS provider.
+
+        Each registered provider is asked, in priority order, whether it
+        recognizes this system. The first provider that both recognizes
+        the system and connects successfully is used. If every registered
+        provider fails to match, or a matching provider cannot connect,
+        Aquila falls back to :class:`UnknownProvider`, the maximally
+        conservative last resort.
         """
-
-        manufacturer = firmware.manufacturer.lower()
-
-        vendor = firmware.vendor.lower()
 
         for provider_type in self._provider_registry:
 
@@ -163,328 +158,38 @@ class BIOSDetection:
 
             try:
 
-                if provider.detect():
+                if not provider.detect():
+                    continue
 
-                    logger.info(
-                        "%s detected successfully.",
-                        provider.__class__.__name__,
-                    )
+                logger.info(
+                    "%s detected successfully.",
+                    type(provider).__name__,
+                )
 
+                if provider.connect():
                     return provider
+
+                logger.warning(
+                    "%s matched detection but failed to connect: %s",
+                    type(provider).__name__,
+                    provider.last_error(),
+                )
 
             except Exception as exc:
 
                 logger.exception(
                     "%s detection failed: %s",
-                    provider.__class__.__name__,
+                    type(provider).__name__,
                     exc,
                 )
 
         logger.warning(
-            "No dedicated provider detected."
+            "No dedicated provider detected; falling back to UnknownProvider."
         )
 
-        return UnknownProvider()
-    # ======================================================
-    # Firmware Discovery
-    # ======================================================
-
-    def _manufacturer(self) -> str:
-        """
-        Return the system manufacturer.
-        """
-
-        return self._wmic_value(
-            alias="computersystem",
-            property_name="manufacturer",
-        )
-
-    def _model(self) -> str:
-        """
-        Return the computer model.
-        """
-
-        return self._wmic_value(
-            alias="computersystem",
-            property_name="model",
-        )
-
-    def _vendor(self) -> str:
-        """
-        Return the BIOS vendor.
-        """
-
-        return self._wmic_value(
-            alias="bios",
-            property_name="manufacturer",
-        )
-
-    def _version(self) -> str:
-        """
-        Return the BIOS version.
-        """
-
-        return self._wmic_value(
-            alias="bios",
-            property_name="SMBIOSBIOSVersion",
-        )
-
-    def _release_date(self) -> str:
-        """
-        Return the BIOS release date.
-        """
-
-        raw = self._wmic_value(
-            alias="bios",
-            property_name="ReleaseDate",
-        )
-
-        if len(raw) >= 8 and raw[:8].isdigit():
-
-            return (
-                f"{raw[0:4]}-"
-                f"{raw[4:6]}-"
-                f"{raw[6:8]}"
-            )
-
-        return raw
-
-    def _serial_number(self) -> str:
-        """
-        Return the system serial number.
-        """
-
-        return self._wmic_value(
-            alias="bios",
-            property_name="SerialNumber",
-        )
-
-    def _uuid(self) -> str:
-        """
-        Return the hardware UUID.
-        """
-
-        return self._wmic_value(
-            alias="csproduct",
-            property_name="UUID",
-        )
-
-    def _bios_mode(self) -> str:
-        """
-        Return the firmware boot mode.
-
-        Possible values:
-
-            UEFI
-            Legacy
-            Unknown
-        """
-
-        if platform.system() != "Windows":
-            return "Unknown"
-
-        try:
-
-            result = subprocess.run(
-                [
-                    "powershell",
-                    "-NoProfile",
-                    "-Command",
-                    "(Get-ComputerInfo).BiosFirmwareType",
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            value = result.stdout.strip()
-
-            if value:
-
-                return value
-
-        except Exception:
-
-            logger.exception(
-                "Unable to determine BIOS mode."
-            )
-
-        return "Unknown"
-
-    # ======================================================
-    # Windows Helpers
-    # ======================================================
-
-    def _wmic_value(
-        self,
-        *,
-        alias: str,
-        property_name: str,
-    ) -> str:
-        """
-        Execute a WMIC query and return the value.
-
-        If the query fails, PowerShell CIM is used
-        as a fallback.
-        """
-
-        if platform.system() != "Windows":
-            return "Unknown"
-
-        #
-        # WMIC
-        #
-
-        try:
-
-            result = subprocess.run(
-                [
-                    "wmic",
-                    alias,
-                    "get",
-                    property_name,
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            if result.returncode == 0:
-
-                lines = [
-                    line.strip()
-                    for line in result.stdout.splitlines()
-                    if line.strip()
-                ]
-
-                if len(lines) >= 2:
-
-                    return lines[1]
-
-        except Exception:
-
-            logger.debug(
-                "WMIC lookup failed for %s.%s",
-                alias,
-                property_name,
-            )
-
-        #
-        # PowerShell CIM
-        #
-
-        return self._powershell_value(
-            alias=alias,
-            property_name=property_name,
-        )
-
-    def _powershell_value(
-        self,
-        *,
-        alias: str,
-        property_name: str,
-    ) -> str:
-        """
-        Retrieve information using PowerShell CIM.
-
-        Modern Windows installations no longer ship
-        WMIC by default, so CIM is the preferred
-        long-term solution.
-        """
-
-        class_map = {
-            "bios": "Win32_BIOS",
-            "computersystem": "Win32_ComputerSystem",
-            "csproduct": "Win32_ComputerSystemProduct",
-        }
-
-        wmi_class = class_map.get(alias)
-
-        if wmi_class is None:
-
-            return "Unknown"
-
-        command = (
-            f"(Get-CimInstance {wmi_class}).{property_name}"
-        )
-
-        try:
-
-            result = subprocess.run(
-                [
-                    "powershell",
-                    "-NoProfile",
-                    "-Command",
-                    command,
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            value = result.stdout.strip()
-
-            if value:
-
-                return value
-
-        except Exception:
-
-            logger.exception(
-                "PowerShell lookup failed."
-            )
-
-        return "Unknown"
-    # ======================================================
-    # Linux Support
-    # ======================================================
-
-    def _linux_dmi_value(
-        self,
-        filename: str,
-    ) -> str:
-        """
-        Read a value from Linux DMI.
-
-        Parameters
-        ----------
-        filename:
-            File contained within
-            /sys/class/dmi/id/
-
-        Returns
-        -------
-        str
-            File contents or "Unknown".
-        """
-
-        if platform.system() != "Linux":
-            return "Unknown"
-
-        try:
-
-            path = f"/sys/class/dmi/id/{filename}"
-
-            with open(
-                path,
-                "r",
-                encoding="utf-8",
-            ) as file:
-
-                value = file.read().strip()
-
-                if value:
-
-                    return value
-
-        except Exception:
-
-            logger.debug(
-                "Unable to read DMI file: %s",
-                filename,
-            )
-
-        return "Unknown"
+        fallback = UnknownProvider()
+        fallback.connect()
+        return fallback
 
     # ======================================================
     # Provider Registry
@@ -495,10 +200,11 @@ class BIOSDetection:
         provider: Type[BIOSProvider],
     ) -> None:
         """
-        Register a provider.
+        Register a custom provider.
 
-        Providers are checked in the order
-        they appear in the registry.
+        Providers are checked in the order they appear in the registry, so
+        a provider that must take priority over a built-in vendor provider
+        should be inserted, not appended, by the caller before use.
         """
 
         if provider in self._provider_registry:
@@ -544,20 +250,27 @@ class BIOSDetection:
 
     def clear_cache(self) -> None:
         """
-        Clear cached firmware information.
+        Clear the cached provider selection.
         """
 
         logger.info(
             "Clearing BIOS detection cache."
         )
 
-        self._provider = None
+        if self._provider is not None:
+            try:
+                self._provider.disconnect()
+            except Exception:
+                logger.debug(
+                    "Error disconnecting previous provider during cache clear.",
+                    exc_info=True,
+                )
 
-        self._firmware_information = None
+        self._provider = None
 
     def refresh(self) -> BIOSProvider:
         """
-        Force a fresh detection.
+        Force a fresh detection and connection pass.
         """
 
         self.clear_cache()
@@ -574,19 +287,25 @@ class BIOSDetection:
         """
 
         firmware = self.firmware_information()
-
         provider = self.provider()
 
+        release_date = (
+            firmware.bios_release_date.isoformat()
+            if firmware.bios_release_date is not None
+            else ""
+        )
+
         return {
-            "provider": provider.__class__.__name__,
+            "provider": provider.provider_name(),
+            "provider_class": type(provider).__name__,
             "manufacturer": firmware.manufacturer,
-            "vendor": firmware.vendor,
+            "vendor": firmware.vendor.value,
             "model": firmware.model,
-            "version": firmware.version,
-            "release_date": firmware.release_date,
+            "version": firmware.bios_version,
+            "release_date": release_date,
             "serial_number": firmware.serial_number,
-            "uuid": firmware.uuid,
-            "bios_mode": firmware.bios_mode,
+            "uuid": firmware.system_uuid,
+            "bios_mode": provider.bios_mode().value,
         }
 
     def to_dict(self) -> dict[str, str]:
@@ -606,10 +325,10 @@ class BIOSDetection:
     @property
     def provider_name(self) -> str:
         """
-        Return the active provider name.
+        Return the active provider's class name.
         """
 
-        return self.provider().__class__.__name__
+        return type(self.provider()).__name__
 
     @property
     def vendor_name(self) -> str:
@@ -617,7 +336,7 @@ class BIOSDetection:
         Return the firmware vendor.
         """
 
-        return self.firmware_information().vendor
+        return self.firmware_information().vendor.value
 
     @property
     def manufacturer_name(self) -> str:

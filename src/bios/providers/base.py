@@ -111,7 +111,7 @@ class ValidationError:
     severity: str = "error"
     current_value: Any = None
     expected_value: Any = None
-    metadata: dict[str, Any] = dataclass_field(default_factory=dict)
+    metadata: dict[str, Any] = dataclass_field(default_factory=lambda: {})
 
 
 # =============================================================================

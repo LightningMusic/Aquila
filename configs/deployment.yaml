@@ -1,0 +1,54 @@
+# Project Aquila - Deployment Configuration
+#
+# Deployment-workflow policy and the Preparation/Provisioning
+# Engines' safety and hardware-minimum defaults.
+#
+# Schema: src/config/schemas/deployment_schema.py (DeploymentConfig)
+# SRS references: Section 9.8, REQ-CONF-006, REQ-PREP-007,
+# REQ-PREP-014, REQ-PROV-005.
+
+schema_version: 1
+
+# Which workflow the Technician Console preselects: "retirement"
+# (Workflow A, Device Retirement) or "provisioning" (Workflow B,
+# Aquila Node Provisioning). The technician can always choose the
+# other workflow explicitly.
+default_workflow: provisioning
+
+# Number of independent operator confirmations the Preparation Engine
+# requires before storage sanitization begins. REQ-PREP-007 requires
+# a default of no fewer than 3; this must be >= 1 (Preparation can
+# never be configured to require zero confirmations).
+confirmation_count: 3
+
+# Storage sanitization method. One of:
+#   quick               - fast, single-pass erase
+#   full                - full-disk overwrite
+#   ata_secure_erase    - ATA Secure Erase (when the drive supports it)
+#   nvme_secure_erase   - NVMe Secure Erase (when the drive supports it)
+sanitization_method: full
+
+# Whether the technician must explicitly acknowledge before Recovery
+# is skipped (REQ-REC-016).
+require_recovery_acknowledgement: true
+
+# Whether the Technician Console offers a "skip recovery" option at
+# all. When false, Recovery must run to completion.
+allow_recovery_skip: true
+
+# Name of the deployment profile applied by the Provisioning Engine
+# (storage layout, partition scheme, filesystem, package selection --
+# REQ-PROV-015). Profiles are defined separately under
+# configs/profiles/.
+deployment_profile: default
+
+# Automatically reboot into the installed OS after Provisioning
+# completes (REQ-PROV-016).
+auto_reboot_after_provisioning: true
+
+# Minimum hardware Provisioning will accept (REQ-PROV-005). A system
+# below these minimums fails validation and Provisioning terminates
+# without modifying storage.
+minimum_memory_gb: 4
+minimum_storage_gb: 32
+require_virtualization_support: true

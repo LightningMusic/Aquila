@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
 from json import dumps
-from typing import Any, ClassVar, Mapping, TypeAlias
+from typing import Any, ClassVar, Mapping, TypeAlias, cast
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
@@ -266,7 +266,7 @@ class TPMState:
     spec_version: str = ""
     version: str = ""
     manufacturer: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=lambda: {})
 
 
 @dataclass(slots=True)
@@ -309,7 +309,7 @@ class BootDevice:
     description: str | None = None
     path: str | None = None
     persistent: bool = True
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=lambda: {})
 
     def __post_init__(self) -> None:
         """Normalize and validate boot-device data."""
@@ -322,7 +322,14 @@ class BootDevice:
         if not self.name:
             raise BIOSModelError("BootDevice.name must not be empty.")
 
-        if isinstance(self.device_type, str):
+        # Statically redundant given this field's declared ``BootDeviceType``
+        # type, but genuinely meaningful at runtime: callers deserializing
+        # a boot device from a deployment profile or an older serialized
+        # record commonly construct this dataclass directly with a raw
+        # string rather than going through ``from_dict()``.
+        if isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            self.device_type, str
+        ):
             self.device_type = BootDeviceType.from_string(self.device_type)
 
         if self.priority is not None and self.priority < 0:
@@ -372,6 +379,7 @@ class BootDevice:
         metadata = data.get("metadata", {})
         if not isinstance(metadata, Mapping):
             raise BIOSModelError("BootDevice.metadata must be a mapping.")
+        metadata = cast(Mapping[str, Any], metadata)
 
         priority = data.get("priority")
         if priority is not None and (
@@ -436,15 +444,25 @@ class FirmwareInformation:
     embedded_controller_version: str = ""
 
     collected_at: datetime | None = None
-    extensions: dict[str, Any] = field(default_factory=dict)
-    raw_data: dict[str, Any] = field(default_factory=dict)
+    extensions: dict[str, Any] = field(default_factory=lambda: {})
+    raw_data: dict[str, Any] = field(default_factory=lambda: {})
 
     def __post_init__(self) -> None:
         """Normalize and validate firmware information."""
-        if isinstance(self.vendor, str):
+        # Both checks are statically redundant given this dataclass's
+        # declared ``BIOSVendor``/``BIOSMode`` field types, but genuinely
+        # meaningful at runtime for the same reason as ``BootDevice``'s
+        # ``device_type`` normalization above: direct construction with a
+        # raw string is common when this model is built from deserialized
+        # or externally-sourced data.
+        if isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            self.vendor, str
+        ):
             self.vendor = BIOSVendor.from_string(self.vendor)
 
-        if isinstance(self.mode, str):
+        if isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            self.mode, str
+        ):
             self.mode = BIOSMode.from_string(self.mode)
 
         self.firmware_interface = self.firmware_interface.strip()
@@ -559,11 +577,13 @@ class FirmwareInformation:
             raise BIOSModelError(
                 "FirmwareInformation.extensions must be a mapping."
             )
+        extensions_value = cast(Mapping[str, Any], extensions_value)
 
         if not isinstance(raw_data_value, Mapping):
             raise BIOSModelError(
                 "FirmwareInformation.raw_data must be a mapping."
             )
+        raw_data_value = cast(Mapping[str, Any], raw_data_value)
 
         known_keys = {
             "schema_version",
@@ -665,7 +685,13 @@ def parse_firmware_date(value: date | str) -> date:
     if isinstance(value, date):
         return value
 
-    if not isinstance(value, str):
+    # Statically redundant given this function's declared ``date | str``
+    # signature, but genuinely meaningful at runtime: firmware and SMBIOS
+    # tooling (this function's own docstring) hands back loosely-typed
+    # values that Python does not check against the type hint.
+    if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+        value, str
+    ):
         raise BIOSModelError(
             "Firmware date must be a date or string value."
         )
@@ -772,11 +798,17 @@ def _make_json_compatible(value: Any) -> JSONValue:
     if isinstance(value, Mapping):
         return {
             str(key): _make_json_compatible(item)
-            for key, item in value.items()
+            for key, item in cast(Mapping[Any, Any], value).items()
         }
 
     if isinstance(value, (list, tuple, set, frozenset)):
-        return [_make_json_compatible(item) for item in value]
+        return [
+            _make_json_compatible(item)
+            for item in cast(
+                "list[Any] | tuple[Any, ...] | set[Any] | frozenset[Any]",
+                value,
+            )
+        ]
 
     return str(value)
 
