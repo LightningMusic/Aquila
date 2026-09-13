@@ -1,0 +1,54 @@
+[project]
+name = "project-aquila"
+version = "0.1.0"
+description = "Automated laptop deployment, provisioning, and Proxmox cluster integration."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "LightningMusic" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+    "wmi>=1.5.1; sys_platform == 'win32'",
+    "pywin32>=306; sys_platform == 'win32'",
+    "requests>=2.31.0",
+]
+
+[project.urls]
+Repository = "https://github.com/LightningMusic/Project-Aquila"
+
+[project.optional-dependencies]
+dev = [
+    "pyright>=1.1.380",
+    "pyinstaller>=6.10",
+]
+
+# ----------------------------------------------------------------------
+# Tooling configuration
+# ----------------------------------------------------------------------
+#
+# Centralized here (GP-003, Configuration Over Hardcoding) rather than
+# left implicit in whatever flags a developer happens to pass on the
+# command line. `pyright src` alone now picks up strict mode and the
+# local `wmi` stub package without needing `--strict` typed out by
+# hand every time; passing `--strict` explicitly still works and is
+# redundant with, not contradicted by, this file.
+
+[tool.pyright]
+include = ["src"]
+stubPath = "typings"
+typeCheckingMode = "strict"
+pythonPlatform = "Windows"
+pythonVersion = "3.11"
+reportMissingImports = true
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

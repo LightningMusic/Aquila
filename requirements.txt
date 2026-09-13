@@ -15,3 +15,11 @@ pyyaml>=6.0
 # Windows deployment media for real firmware data collection.
 wmi>=1.5.1; sys_platform == "win32"
 pywin32>=306; sys_platform == "win32"
+
+# api/ - src/api/client.py and src/api/download.py both import
+# `requests` directly (HTTP session management, downloads). This was
+# missing from requirements.txt even though api/ already depended on
+# it -- a real gap found while building bootstrap/, which reuses
+# api.client.ApiClient for Deployment Controller communication.
+# Fixed here at the root rather than worked around in a caller.
+requests>=2.31.0
