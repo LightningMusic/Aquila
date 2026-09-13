@@ -96,6 +96,21 @@ class NetworkAdapter:
     link_status: EthernetStatus | None = None
     ip_addresses: list[str] = field(default_factory=lambda: [])
 
+    #: ``Win32_NetworkAdapterConfiguration.DefaultIPGateway`` -- the
+    #: adapter's currently assigned default gateway(s), when IP is
+    #: enabled and a gateway has been assigned (by DHCP or a prior
+    #: static configuration). Needed by the Networking Engine's
+    #: REQ-NET-007 gateway check when the assignment method is DHCP,
+    #: where no gateway is known ahead of time from configuration.
+    default_gateways: list[str] = field(default_factory=lambda: [])
+
+    #: ``Win32_NetworkAdapter.Index`` / ``Win32_NetworkAdapterConfiguration
+    #: .Index`` -- the join key the Networking Engine needs to invoke a
+    #: mutating configuration method (``EnableDHCP``, ``EnableStatic``,
+    #: ...) against the correct adapter (REQ-NET-005). ``None`` for any
+    #: adapter not sourced from a live WMI query (e.g. a test double).
+    interface_index: int | None = None
+
     extensions: dict[str, Any] = field(default_factory=lambda: {})
 
     def __post_init__(self) -> None:
@@ -121,6 +136,7 @@ class NetworkAdapter:
             )
 
         self.ip_addresses = list(self.ip_addresses)
+        self.default_gateways = list(self.default_gateways)
         self.extensions = dict(self.extensions)
 
     def to_dict(self) -> dict[str, JSONValue]:
@@ -138,6 +154,8 @@ class NetworkAdapter:
                 self.link_status.name if self.link_status is not None else None
             ),
             "ip_addresses": list(self.ip_addresses),
+            "default_gateways": list(self.default_gateways),
+            "interface_index": self.interface_index,
             "extensions": make_json_compatible(self.extensions),
         }
 
@@ -158,6 +176,8 @@ class NetworkAdapter:
             "driver_version",
             "link_status",
             "ip_addresses",
+            "default_gateways",
+            "interface_index",
             "extensions",
         }
 
@@ -178,6 +198,13 @@ class NetworkAdapter:
             raise HardwareModelError("NetworkAdapter.ip_addresses must be a list.")
         raw_ips = cast("list[Any]", raw_ips)
 
+        raw_gateways = data.get("default_gateways", [])
+        if not isinstance(raw_gateways, list):
+            raise HardwareModelError(
+                "NetworkAdapter.default_gateways must be a list."
+            )
+        raw_gateways = cast("list[Any]", raw_gateways)
+
         return cls(
             name=str(data.get("name") or ""),
             description=str(data.get("description") or ""),
@@ -197,6 +224,12 @@ class NetworkAdapter:
             driver_version=str(data.get("driver_version") or ""),
             link_status=link_status,
             ip_addresses=[str(ip) for ip in raw_ips],
+            default_gateways=[str(gateway) for gateway in raw_gateways],
+            interface_index=(
+                int(data["interface_index"])
+                if data.get("interface_index") is not None
+                else None
+            ),
             extensions=extensions,
         )
 
