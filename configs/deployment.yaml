@@ -1,11 +1,13 @@
 # Project Aquila - Deployment Configuration
 #
-# Deployment-workflow policy and the Preparation/Provisioning
-# Engines' safety and hardware-minimum defaults.
+# Deployment-workflow policy, the Preparation/Provisioning Engines'
+# safety and hardware-minimum defaults, and the Bootstrap Engine's
+# power/lid/battery/power-recovery policy.
 #
 # Schema: src/config/schemas/deployment_schema.py (DeploymentConfig)
-# SRS references: Section 9.8, REQ-CONF-006, REQ-PREP-007,
-# REQ-PREP-014, REQ-PROV-005.
+# SRS references: Section 9.8, REQ-CONF-006, REQ-CONF-011,
+# REQ-CONF-012, REQ-PREP-007, REQ-PREP-014, REQ-PROV-005,
+# REQ-BOOT-007 through REQ-BOOT-011.
 
 schema_version: 1
 
@@ -52,3 +54,56 @@ auto_reboot_after_provisioning: true
 minimum_memory_gb: 4
 minimum_storage_gb: 32
 require_virtualization_support: true
+
+# Bootstrap Engine power/lid/battery/recovery policy (REQ-BOOT-007
+# through REQ-BOOT-011, GP-008). Applied once, during first boot,
+# entirely within Phase Two (the freshly-installed Linux node) --
+# see src/bootstrap/power.py and src/bootstrap/battery.py.
+
+# Mask systemd's sleep.target/suspend.target/hibernate.target/
+# hybrid-sleep.target so a deployed node never unexpectedly suspends
+# (REQ-BOOT-007).
+disable_sleep_targets: true
+
+# Lid-switch action, matching systemd-logind's HandleLidSwitch=
+# values exactly ("ignore", "poweroff", "reboot", "halt", "suspend",
+# "hibernate", "hybrid-sleep", "lock"). REQ-BOOT-008 calls for
+# "ignore" on deployed nodes (prevent unintended suspend during
+# server operation).
+lid_action: ignore
+
+# Battery charge-limiting thresholds (percent, REQ-BOOT-009). Leave
+# both null to skip battery threshold configuration entirely.
+# Applied only on hardware exposing the standard
+# charge_control_start_threshold/charge_control_end_threshold sysfs
+# attributes; unsupported hardware is logged, never failed
+# (REQ-BOOT-010).
+battery_charge_start_threshold: null
+battery_charge_end_threshold: null
+
+# Firmware/BMC power-restore policy (REQ-BOOT-011): "always-on"
+# (power on when AC returns), "previous" (restore prior state), or
+# "always-off". Applied only when a local IPMI/BMC interface is
+# detected -- absent on most commodity laptops/desktops, which is
+# expected, not a failure.
+power_recovery_policy: always-on
+
+# The pre-registered BCD boot-entry identifier
+# provisioning.boot_handoff.PhaseTwoHandoff hands to
+# `bcdedit /bootsequence` (see that module's own docstring). Stamped
+# onto this media's deployment.yaml by the not-yet-built Build System
+# at USB-build time -- left blank here since no build has stamped one
+# yet. The Technician Console refuses to start Provisioning while this
+# is blank rather than guessing an identifier.
+boot_entry_id: ""
+
+# Proxmox VE installer settings (REQ-PROV-015's required
+# [global].fqdn domain suffix / [global].mailto notification address
+# -- src/provisioning/answer_file.py's ProvisioningProfile refuses to
+# render an answer file missing either). Deployment-wide: every node
+# this media provisions shares the same DNS domain and installer
+# notification mailbox. The Technician Console refuses to start
+# Provisioning while either is blank rather than guessing a domain or
+# email address on the node's behalf.
+provisioning_domain: ""
+provisioning_notification_email: ""

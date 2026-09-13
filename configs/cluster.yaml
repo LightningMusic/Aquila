@@ -30,3 +30,11 @@ reachability_timeout_seconds: 30
 # (REQ-SEC-008/REQ-SEC-009). Set the environment variable named below
 # on the deployment medium or Deployment Controller instead.
 join_token_env_var: AQUILA_CLUSTER_JOIN_TOKEN
+
+# SHA-256 certificate fingerprint of primary_node_host, colon-
+# separated hex (the form `pvecm add --fingerprint` accepts). When
+# known ahead of time, this lets Bootstrap skip pvecm add's
+# interactive fingerprint-acceptance prompt entirely -- leave null to
+# join without it (see src/bootstrap/cluster.py's module docstring
+# for the limitation this leaves).
+join_fingerprint: null
