@@ -43,7 +43,7 @@ class CPUBenchmark:
         Execute the CPU benchmark suite.
         """
 
-        timings = []
+        timings: list[float] = []
 
         for _ in range(self.samples):
             timings.append(self._floating_point_test())

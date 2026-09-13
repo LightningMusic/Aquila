@@ -107,7 +107,7 @@ class GPUBenchmark:
                 "Unable to enumerate GPU devices."
             ) from exc
 
-        devices = []
+        devices: list[dict[str, Any]] = []
 
         for line in result.stdout.splitlines():
 
@@ -152,7 +152,7 @@ class GPUBenchmark:
                 "Unable to enumerate GPU devices."
             ) from exc
 
-        devices = []
+        devices: list[dict[str, Any]] = []
 
         for line in result.stdout.splitlines():
 

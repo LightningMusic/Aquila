@@ -9,6 +9,11 @@ Provides network benchmarking for Project Aquila.
 The benchmark focuses on characteristics important
 to Proxmox cluster deployment.
 
+Satisfies REQ-BENCH-004 ("The Benchmark Engine shall
+evaluate Ethernet performance.") by measuring latency,
+best-effort link speed, and Internet reachability over
+the node's Ethernet interface.
+
 Author:
     Project Aquila Development Team
 
@@ -72,7 +77,7 @@ class NetworkBenchmark:
 
     def _latency(self) -> dict[str, float]:
 
-        values = []
+        values: list[float] = []
 
         for _ in range(self.samples):
 

@@ -11,6 +11,9 @@ sequential read, and random read/write benchmarks
 using temporary files. It is intended to validate
 storage performance before Proxmox installation.
 
+Satisfies REQ-BENCH-003 ("The Benchmark Engine shall
+evaluate storage performance.").
+
 Author:
     Project Aquila Development Team
 

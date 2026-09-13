@@ -11,6 +11,9 @@ benchmark execution. It is intended to detect obvious
 thermal problems without placing unnecessary stress on
 the hardware.
 
+Satisfies REQ-BENCH-005 ("The Benchmark Engine shall
+monitor system temperatures during benchmarking.").
+
 Author:
     Project Aquila Development Team
 

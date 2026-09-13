@@ -17,8 +17,20 @@ License:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
+
+
+def _utcnow() -> datetime:
+    """
+    Timezone-aware replacement for the deprecated
+    ``datetime.utcnow()`` (see Python's own
+    ``datetime`` documentation: naive UTC timestamps
+    are deprecated in favor of
+    ``datetime.now(timezone.utc)``).
+    """
+
+    return datetime.now(timezone.utc)
 
 
 @dataclass(slots=True)
@@ -32,7 +44,7 @@ class BenchmarkReport:
     # Metadata
     # ---------------------------------------------------------
 
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=_utcnow)
 
     hostname: str = ""
 
@@ -44,17 +56,17 @@ class BenchmarkReport:
     # Benchmark Results
     # ---------------------------------------------------------
 
-    cpu: dict[str, Any] = field(default_factory=dict)
+    cpu: dict[str, Any] = field(default_factory=lambda: {})
 
-    gpu: dict[str, Any] = field(default_factory=dict)
+    gpu: dict[str, Any] = field(default_factory=lambda: {})
 
-    memory: dict[str, Any] = field(default_factory=dict)
+    memory: dict[str, Any] = field(default_factory=lambda: {})
 
-    storage: dict[str, Any] = field(default_factory=dict)
+    storage: dict[str, Any] = field(default_factory=lambda: {})
 
-    network: dict[str, Any] = field(default_factory=dict)
+    network: dict[str, Any] = field(default_factory=lambda: {})
 
-    thermal: dict[str, Any] = field(default_factory=dict)
+    thermal: dict[str, Any] = field(default_factory=lambda: {})
 
     # ---------------------------------------------------------
     # Summary
@@ -62,7 +74,7 @@ class BenchmarkReport:
 
     overall_score: int = 0
 
-    notes: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=lambda: [])
 
     # ---------------------------------------------------------
     # Helpers

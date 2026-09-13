@@ -10,6 +10,11 @@ This benchmark measures memory allocation,
 sequential access, random access, and copy
 performance using only the Python standard library.
 
+Satisfies REQ-BENCH-002 ("The Benchmark Engine shall
+evaluate memory performance."), as one of the category
+benchmarks ``benchmark.benchmark_manager.BenchmarkManager``
+coordinates.
+
 Author:
     Project Aquila Development Team
 
@@ -22,6 +27,7 @@ from __future__ import annotations
 import random
 import statistics
 import time
+from collections.abc import Callable
 from typing import Any
 
 
@@ -77,12 +83,14 @@ class MemoryBenchmark:
     # Benchmark Helpers
     # ---------------------------------------------------------
 
-    def _benchmark(self, func) -> dict[str, float]:
+    def _benchmark(
+        self, func: Callable[[], float]
+    ) -> dict[str, float]:
         """
         Execute a benchmark multiple times.
         """
 
-        timings = []
+        timings: list[float] = []
 
         for _ in range(self.samples):
             timings.append(func())
