@@ -127,6 +127,13 @@ def startup(
     except Exception as exc:
         lifecycle.transition_to(ApplicationState.FAILED)
 
+        # NFR-REL-002 ("Recoverable failures shall generate informative
+        # diagnostic information"): whatever failed during startup
+        # (an unreadable configuration file, an invalid log level, ...)
+        # is wrapped -- with its own message preserved via ``from exc``
+        # and interpolated into this one -- in a single, specific
+        # exception type a caller can catch and report, rather than an
+        # arbitrary exception escaping this function unannounced.
         raise AquilaInitializationError(
             f"Aquila failed to start up: {exc}"
         ) from exc

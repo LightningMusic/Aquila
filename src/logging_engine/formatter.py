@@ -142,6 +142,14 @@ class StructuredFormatter(logging.Formatter):
     """
 
     def format(self, record: logging.LogRecord) -> str:
+        # REQ-LOG-012: entries land in chronological order because
+        # ``logging.handlers.RotatingFileHandler.emit()`` appends each
+        # formatted record synchronously, in the order the record was
+        # created -- ``record.created`` (the wall-clock time this
+        # record was constructed, not when it happens to be flushed)
+        # is carried straight through here as ``timestamp`` so a
+        # reader of the exported JSON Lines stream can also verify
+        # that ordering, not merely rely on it.
         payload: dict[str, Any] = {
             "timestamp": datetime.fromtimestamp(
                 record.created,

@@ -53,6 +53,8 @@ CLI_LOGGER = "aquila.cli"
 
 GUI_LOGGER = "aquila.gui"
 
+WORKFLOW_LOGGER = "aquila.workflow"
+
 # ----------------------------------------------------------------------
 # Logging Levels
 # ----------------------------------------------------------------------
@@ -112,6 +114,17 @@ API_LOG_FILE = "api.log"
 CLI_LOG_FILE = "cli.log"
 
 GUI_LOG_FILE = "gui.log"
+
+#: workflows/*.py's orchestration-layer log (REQ-TC-009/REQ-LOG-004:
+#: "deployment lifecycle events") -- distinct from DEPLOYMENT_LOG_FILE,
+#: which every engine manager already logs through directly for its
+#: own low-level per-engine events; WORKFLOW_LOG_FILE captures the
+#: stage-sequencing/orchestration events workflows/ itself publishes
+#: (stage started/completed/halted, confirmation-gate outcomes),
+#: giving the Technician Console (REQ-TC-008) one place to show
+#: "what did the workflow layer itself decide", separate from each
+#: engine's own detailed activity.
+WORKFLOW_LOG_FILE = "workflow.log"
 
 # ----------------------------------------------------------------------
 # Formatting
@@ -256,4 +269,6 @@ __all__ = [
     "RECOVERY_LOGGER",
     "ROOT_LOGGER",
     "VERBOSE_MODE",
+    "WORKFLOW_LOG_FILE",
+    "WORKFLOW_LOGGER",
 ]

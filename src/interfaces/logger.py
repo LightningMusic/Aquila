@@ -68,6 +68,9 @@ class LoggerProvider(Service, Protocol):
     def recovery_logger(self) -> logging.Logger: ...
 
     @property
+    def preparation_logger(self) -> logging.Logger: ...
+
+    @property
     def inspection_logger(self) -> logging.Logger: ...
 
     @property
@@ -102,6 +105,9 @@ class LoggerProvider(Service, Protocol):
 
     @property
     def event_logger(self) -> logging.Logger: ...
+
+    @property
+    def workflow_logger(self) -> logging.Logger: ...
 
     def add_handler(self, logger_name: str, handler: logging.Handler) -> None:
         """Attach an additional handler to a managed logger (REQ-LOG-015)."""

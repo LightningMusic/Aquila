@@ -20,6 +20,17 @@ so structural typing lets each one satisfy this contract simply by
 already having the right methods, with no inheritance change required
 anywhere, and no risk of a future diamond-inheritance conflict.
 
+NFR-MAIN-004 ("All production code shall be traceable to documented
+functional requirements"): this docstring's own citations of
+``NFR-MAIN-002``, ``ConfigurationManager``, and ``LogManager`` are an
+instance of a project-wide convention, not an exception -- every
+module, class, and function of consequence in this codebase names the
+exact SRS requirement identifier(s) it implements directly in its
+docstring or an adjacent comment (``tools/check_requirement_
+traceability.py`` verifies this mechanically), which is how a reader
+-- or that tool -- traces any given piece of production code back to
+the documented requirement that justifies its existence.
+
 Author:
     Project Aquila Development Team
 

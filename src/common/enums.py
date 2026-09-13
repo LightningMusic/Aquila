@@ -67,9 +67,74 @@ class DeploymentStatus(Enum):
     CANCELLED = auto()
 
 
+class NodeStatus(Enum):
+    """
+    Inventory-record lifecycle status for a node managed by the
+    Deployment Controller (REQ-INV-005).
+
+    Deliberately distinct from ``DeploymentStatus``: ``DeploymentStatus``
+    tracks the run-state of a single deployment *attempt*
+    (pending/running/success/failed/cancelled), while ``NodeStatus``
+    tracks a node's *inventory record* across its whole operational
+    lifetime, exactly matching REQ-INV-005's own enumerated list
+    ("Pending, Provisioning, Bootstrapping, Operational, Failed,
+    Retired"). Collapsing these into one enum was considered and
+    rejected -- ``DeploymentStatus`` has no "Retired" concept (a node
+    can be retired long after its last deployment attempt succeeded),
+    and REQ-INV-005 has no "Cancelled" concept -- so aligning them
+    would have required inventing meaning neither requirement asks
+    for.
+    """
+
+    PENDING = auto()
+    PROVISIONING = auto()
+    BOOTSTRAPPING = auto()
+    OPERATIONAL = auto()
+    FAILED = auto()
+    RETIRED = auto()
+
+
+class DeploymentApprovalStatus(Enum):
+    """
+    Deployment Controller approval decision for a node (REQ-CTRL-016):
+    "Deployment approval may be: Approved, Denied, Pending manual
+    approval."
+    """
+
+    PENDING = auto()
+    APPROVED = auto()
+    DENIED = auto()
+
+
 # =============================================================================
 # Workflow
 # =============================================================================
+
+
+class WorkflowType(Enum):
+    """
+    Which SRS Appendix B deployment workflow is running: Device
+    Retirement (Workflow A) or Aquila Node Provisioning (Workflow B).
+
+    Introduced by the ``workflows/`` package: before it existed,
+    workflow *identity* was represented only as free-text strings
+    (``config.schemas.deployment_schema.DeploymentConfig
+    .DEPLOYMENT_WORKFLOWS`` / ``.default_workflow``,
+    ``models.deployment.session.DeploymentSessionRecord.workflow``) --
+    fine for a config value or a stored record, but
+    ``workflows.deployment_manager`` is the first place workflow
+    identity needs to be *branched on* programmatically (which stages
+    run), which is exactly what magic strings make error-prone (GP-003
+    favors configuration over hardcoding, but branching logic itself
+    still deserves a real type, not a string comparison). Members are
+    aligned to ``DEPLOYMENT_WORKFLOWS``'s exact values via ``.value``,
+    so every existing string-based config/session-record field still
+    round-trips losslessly (``WorkflowType(value)`` /
+    ``workflow_type.value``) -- nothing on-disk changes shape.
+    """
+
+    RETIREMENT = "retirement"
+    PROVISIONING = "provisioning"
 
 
 class WorkflowState(Enum):
@@ -299,6 +364,30 @@ class EventType(Enum):
     CLUSTER_JOIN_STARTED = auto()
     CLUSTER_JOINED = auto()
     CLUSTER_JOIN_FAILED = auto()
+
+    # =============================================================================
+    # Deployment Controller / Inventory Events
+    # =============================================================================
+
+    NODE_AUTHENTICATED = auto()
+    NODE_AUTHENTICATION_FAILED = auto()
+
+    NODE_APPROVED = auto()
+    NODE_DENIED = auto()
+
+    NODE_CONFIGURATION_ISSUED = auto()
+
+    NODE_REGISTERED = auto()
+    NODE_STATUS_CHANGED = auto()
+
+    BENCHMARK_RECORDED = auto()
+
+    DEPLOYMENT_REPORT_RECORDED = auto()
+
+    CONTROLLER_STARTED = auto()
+    CONTROLLER_STOPPED = auto()
+
+
 class EventSource(Enum):
     """
     Known Aquila event publishers.
@@ -327,6 +416,10 @@ class EventSource(Enum):
     NETWORK_MANAGER = auto()
 
     TECHNICIAN_CONSOLE = auto()
+
+    CONTROLLER_MANAGER = auto()
+
+    INVENTORY_MANAGER = auto()
 
 
 # =============================================================================

@@ -27,28 +27,46 @@ from textwrap import fill
 # Byte Formatting
 # ----------------------------------------------------------------------
 
+#: Binary (IEC) units, matching the /1024 division below -- see the
+#: fix note in this function's own docstring for why these replaced
+#: the previous "KB"/"MB"/... labels.
 _BYTE_UNITS = (
     "B",
-    "KB",
-    "MB",
-    "GB",
-    "TB",
-    "PB",
+    "KiB",
+    "MiB",
+    "GiB",
+    "TiB",
+    "PiB",
 )
 
 
 def format_bytes(size: int) -> str:
     """
-    Format a byte count into a human-readable string.
+    Format a byte count into a human-readable string, using binary
+    (1024-based) units.
+
+    Fixed root-cause duplication bug: this function and
+    ``technician_console.progress.format_bytes`` were two independent
+    implementations of the same concern, and had drifted -- this one
+    divided by 1024 (binary math) while labeling the result with
+    decimal unit names ("KB"/"MB"/...), which is simply an incorrect
+    label for that math (1024 bytes is 1 KiB, not 1.00 KB); the other
+    used the correct "KiB"/"MiB"/... labels. Latent-drift-risk category
+    already fixed elsewhere in this project (``common/constants/filesystem.py``
+    re-declaring ``deployment.py``'s USB-layout constants,
+    ``bootstrap/controller_client.py``/``deployment_controller/api.py``
+    re-declaring the same route paths) -- one public byte-formatting
+    helper producing different operator-facing text than another with
+    the same name is the same class of defect. This is now the single
+    implementation; ``technician_console.progress.format_bytes``
+    re-exports it rather than re-declaring it.
     """
 
     value = float(size)
 
     for unit in _BYTE_UNITS:
-
         if value < 1024 or unit == _BYTE_UNITS[-1]:
-            return f"{value:.2f} {unit}"
-
+            return f"{value:.1f} {unit}"
         value /= 1024
 
     return f"{size} B"

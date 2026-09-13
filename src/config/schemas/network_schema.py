@@ -7,7 +7,11 @@ Network Configuration Schema
 Defines the validated, typed structure of ``configs/network.yaml``:
 how the Networking Engine acquires an IP address and which
 connectivity checks must pass before Aquila Node Provisioning
-(Workflow B) is allowed to proceed.
+(Workflow B) is allowed to proceed. This is REQ-CONF-007's
+"Configuration shall support networking customization" -- the IP
+assignment method, static addressing, DNS servers, and connectivity
+requirements below are all technician-configurable rather than
+hardcoded.
 
 See SRS Section 9.13 (Networking) and REQ-NET-001 through REQ-NET-014.
 

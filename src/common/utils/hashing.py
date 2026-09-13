@@ -26,8 +26,32 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+from typing import Protocol
 
 DEFAULT_CHUNK_SIZE = 1024 * 1024  # 1 MiB
+
+
+class _HashObject(Protocol):
+    """
+    The subset of ``hashlib``'s hash object interface this module
+    actually uses (``update``/``hexdigest``).
+
+    ``hashlib.md5()``/``.sha1()``/``.sha256()``/``.sha512()`` all
+    really return ``hashlib._Hash`` -- but that type is private (its
+    leading underscore is deliberate on typeshed's side), so
+    annotating a public function's parameter with it directly is
+    itself a strict-mode type-checking defect (``reportPrivateUsage``),
+    not just a style nit: a caller outside this module cannot name
+    that type to satisfy it either. A small local ``Protocol``
+    capturing only the two methods this module calls is the correct
+    fix, not a suppression -- pyright still fully verifies both call
+    sites; only the private type's *name* stops leaking across the
+    module boundary.
+    """
+
+    def update(self, data: bytes, /) -> object: ...
+
+    def hexdigest(self) -> str: ...
 
 
 # ----------------------------------------------------------------------
@@ -35,7 +59,7 @@ DEFAULT_CHUNK_SIZE = 1024 * 1024  # 1 MiB
 # ----------------------------------------------------------------------
 
 def _hash_stream(
-    algorithm: hashlib._Hash,
+    algorithm: _HashObject,
     path: Path,
     chunk_size: int,
 ) -> str:

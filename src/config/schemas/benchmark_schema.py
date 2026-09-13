@@ -7,7 +7,8 @@ Benchmark Configuration Schema
 Defines the validated, typed structure of ``configs/benchmark.yaml``:
 which benchmark suites the Benchmark Engine runs after a successful
 Bootstrap, and whether a benchmark failure is allowed to block a node
-from entering operational service.
+from entering operational service. This is REQ-CONF-009's
+"Configuration shall support benchmark settings".
 
 See SRS Section 9.11 and REQ-BENCH-001 through REQ-BENCH-010.
 

@@ -21,6 +21,30 @@ License:
 from __future__ import annotations
 
 # ----------------------------------------------------------------------
+# USB Layout -- re-exported from common.constants.deployment
+# ----------------------------------------------------------------------
+#
+# Foundational fix (technician_console/ session): this module and
+# common/constants/deployment.py independently declared the same five
+# USB-layout literals (USB_PHASE_ONE_DIRECTORY, USB_PHASE_TWO_DIRECTORY,
+# USB_REPORT_DIRECTORY, USB_RECOVERY_DIRECTORY, USB_LOG_DIRECTORY) --
+# the exact same latent-defect shape already fixed once this project
+# (see common/constants/controller_api.py's history): one side
+# renaming/changing a value would silently drift out of sync with the
+# other, undetected until runtime. common.constants.deployment is the
+# one every real call site already imports from (preparation/,
+# networking/, provisioning/, workflows/, services/) -- this module
+# re-exports its values instead of re-declaring them, so there is
+# exactly one place either can change.
+from common.constants.deployment import (
+    USB_LOG_DIRECTORY,
+    USB_PHASE_ONE_DIRECTORY,
+    USB_PHASE_TWO_DIRECTORY,
+    USB_RECOVERY_DIRECTORY,
+    USB_REPORT_DIRECTORY,
+)
+
+# ----------------------------------------------------------------------
 # General
 # ----------------------------------------------------------------------
 
@@ -63,20 +87,6 @@ BENCHMARK_DIRECTORY = "benchmark"
 TEMP_DIRECTORY = "temp"
 
 CACHE_DIRECTORY = ".cache"
-
-# ----------------------------------------------------------------------
-# USB Layout
-# ----------------------------------------------------------------------
-
-USB_PHASE_ONE_DIRECTORY = "phase1"
-
-USB_PHASE_TWO_DIRECTORY = "phase2"
-
-USB_REPORT_DIRECTORY = "reports"
-
-USB_RECOVERY_DIRECTORY = "recovery"
-
-USB_LOG_DIRECTORY = "logs"
 
 # ----------------------------------------------------------------------
 # Configuration Files

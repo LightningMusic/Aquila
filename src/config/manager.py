@@ -145,6 +145,12 @@ class ConfigurationManager:
     ) -> None:
         from common.paths import CONFIGS_DIR
 
+        # REQ-CONF-002/NFR-MAIN-003: every configuration this manager
+        # reads lives as a ``configs/*.yaml`` file on disk, resolved
+        # here to a directory outside ``src/`` -- never a value baked
+        # into this module or any other -- so configuration stays
+        # both physically separate from source code and external to
+        # the application logic that consumes it.
         self._configs_dir = configs_dir or CONFIGS_DIR
         self._event_bus: Optional[EventBus] = event_bus
 

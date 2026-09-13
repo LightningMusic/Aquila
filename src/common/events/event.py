@@ -48,7 +48,14 @@ class Event:
     event_type: str
     source: str
 
-    payload: dict[str, Any] = field(default_factory=dict)
+    # `field(default_factory=dict)` type-checks as
+    # `dict[Unknown, Unknown]` under strict pyright -- the bare `dict`
+    # factory reference doesn't inherit this attribute's own
+    # `dict[str, Any]` annotation. Parameterizing the factory itself
+    # (`dict[str, Any]`, callable at runtime since PEP 585) keeps the
+    # exact same behavior (an empty dict) while giving pyright a fully
+    # known return type.
+    payload: dict[str, Any] = field(default_factory=dict[str, Any])
 
     event_id: UUID = field(default_factory=uuid4)
 

@@ -23,7 +23,6 @@ import logging
 from collections import defaultdict
 from collections.abc import Callable
 from threading import RLock
-from typing import Any
 
 from common.events.event import Event
 

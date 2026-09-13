@@ -6,6 +6,8 @@ Logging Configuration Schema
 
 Defines the validated, typed structure of ``configs/logging.yaml``:
 verbosity, retention, and output destinations for the Logging Engine.
+This is REQ-CONF-010's "Configuration shall support logging
+settings".
 
 See SRS Section 9.9 and REQ-LOG-001 through REQ-LOG-015.
 

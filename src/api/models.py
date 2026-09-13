@@ -32,8 +32,8 @@ class ApiRequest:
     method: str
     endpoint: str
 
-    headers: dict[str, str] = field(default_factory=dict)
-    params: dict[str, Any] = field(default_factory=dict)
+    headers: dict[str, str] = field(default_factory=lambda: {})
+    params: dict[str, Any] = field(default_factory=lambda: {})
     payload: Any | None = None
     timeout: int | None = None
 
@@ -46,7 +46,7 @@ class ApiResponse:
 
     status_code: int
 
-    headers: dict[str, str] = field(default_factory=dict)
+    headers: dict[str, str] = field(default_factory=lambda: {})
     body: Any | None = None
 
     @property
@@ -67,7 +67,7 @@ class ApiError:
     status_code: int
     message: str
 
-    details: dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=lambda: {})
 
 
 @dataclass(slots=True)

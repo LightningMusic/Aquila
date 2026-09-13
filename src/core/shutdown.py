@@ -10,6 +10,15 @@ other service is stopped first, then ``LogManager`` last, so its own
 shutdown -- and every other service's -- ends up recorded in the log
 it just finished writing.
 
+NFR-REL-001 ("Unexpected subsystem failures shall not corrupt
+deployment logs"): this ordering is exactly why ``LogManager`` goes
+last -- if some other service's own teardown were to fail
+unexpectedly while logging had already been shut down, that failure
+would have nowhere safe to be recorded and could tear at a log file
+mid-write; keeping the Logging Engine alive until everything else has
+finished means a failure elsewhere during shutdown is still captured
+by a fully intact logging system.
+
 Author:
     Project Aquila Development Team
 

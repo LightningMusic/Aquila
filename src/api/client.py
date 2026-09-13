@@ -25,6 +25,7 @@ License:
 
 from __future__ import annotations
 
+from types import TracebackType
 from typing import Any
 
 import requests
@@ -226,8 +227,8 @@ class ApiClient:
 
     def __exit__(
         self,
-        exc_type,
-        exc,
-        traceback,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.close()

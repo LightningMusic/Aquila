@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from types import TracebackType
 
 from api.client import ApiClient
 
@@ -178,9 +179,9 @@ class ApiServer:
 
     def __exit__(
         self,
-        exc_type,
-        exc,
-        traceback,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
 
         self.disconnect()

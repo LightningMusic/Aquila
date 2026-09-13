@@ -13,6 +13,14 @@ this codebase (``config.manager.ConfigurationManager``,
 ``logging_engine.log_manager.LogManager``, and every future engine
 that follows the same pattern), which only ever call ``publish()``.
 
+This ``interfaces`` package as a whole is how NFR-MAIN-001 ("Project
+Aquila shall utilize a modular software architecture") is realized in
+code: every cross-cutting dependency a subsystem manager needs --
+an event bus, a configuration provider, its own service lifecycle --
+is expressed as a structural ``Protocol`` here rather than a concrete
+import of another subsystem's class, so any one module can be
+replaced or tested in isolation behind the same narrow contract.
+
 Defined as a ``typing.Protocol``: ``EventBus`` lives in the
 already-complete ``common`` package, which this project isn't
 modifying, so a structural interface is the only way to document its

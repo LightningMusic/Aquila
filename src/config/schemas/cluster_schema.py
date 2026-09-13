@@ -70,6 +70,18 @@ class ClusterConfig:
     #: least-privilege principle).
     join_token_env_var: str = "AQUILA_CLUSTER_JOIN_TOKEN"
 
+    #: SHA-256 fingerprint of ``primary_node_host``'s certificate, in
+    #: the colon-separated hex form ``pvecm add --fingerprint``
+    #: accepts. Optional: when known ahead of time (e.g. captured
+    #: once when the cluster's first node was created, and
+    #: distributed by the Deployment Controller from then on), it
+    #: lets ``bootstrap.cluster.ClusterEnrollment`` skip ``pvecm
+    #: add``'s interactive fingerprint-acceptance prompt entirely.
+    #: When ``None``, joining still proceeds -- see
+    #: ``bootstrap.cluster``'s module docstring for the documented
+    #: limitation this leaves.
+    join_fingerprint: str | None = None
+
     extensions: dict[str, Any] = field(default_factory=lambda: {})
 
     def __post_init__(self) -> None:
@@ -114,6 +126,7 @@ class ClusterConfig:
             "verify_tls",
             "reachability_timeout_seconds",
             "join_token_env_var",
+            "join_fingerprint",
         }
 
         extensions = {
@@ -168,6 +181,14 @@ class ClusterConfig:
                 field_name="join_token_env_var",
                 default="AQUILA_CLUSTER_JOIN_TOKEN",
             ),
+            join_fingerprint=(
+                coerce_str(
+                    mapping.get("join_fingerprint"),
+                    field_name="join_fingerprint",
+                )
+                if mapping.get("join_fingerprint") is not None
+                else None
+            ),
             extensions=extensions,
         )
 
@@ -186,6 +207,7 @@ class ClusterConfig:
                 self.reachability_timeout_seconds
             ),
             "join_token_env_var": self.join_token_env_var,
+            "join_fingerprint": self.join_fingerprint,
             **self.extensions,
         }
 

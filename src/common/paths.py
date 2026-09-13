@@ -39,6 +39,7 @@ PROJECT_ROOT = SRC_DIR.parent
 ASSETS_DIR = PROJECT_ROOT / "assets"
 BUILD_DIR = PROJECT_ROOT / "build"
 CONFIGS_DIR = PROJECT_ROOT / "configs"
+DATA_DIR = PROJECT_ROOT / "data"
 DOCS_DIR = PROJECT_ROOT / "docs"
 RELEASES_DIR = PROJECT_ROOT / "releases"
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
@@ -79,6 +80,23 @@ CONTROLLER_CONFIG = CONFIGS_DIR / "controller.yaml"
 DEPLOYMENT_CONFIG = CONFIGS_DIR / "deployment.yaml"
 LOGGING_CONFIG = CONFIGS_DIR / "logging.yaml"
 NETWORK_CONFIG = CONFIGS_DIR / "network.yaml"
+
+#: The Deployment Controller service's own server-side configuration
+#: (bind address, TLS material, database location, enrollment policy)
+#: -- distinct from ``CONTROLLER_CONFIG`` above, which is the
+#: *client*-facing "how do I reach the Controller" configuration
+#: shipped on deployment media. See
+#: ``config.schemas.controller_server_schema`` for the full rationale.
+CONTROLLER_SERVER_CONFIG = CONFIGS_DIR / "controller_server.yaml"
+
+# ----------------------------------------------------------------------
+# Data (runtime, persistent service state -- not build output)
+# ----------------------------------------------------------------------
+
+#: The Deployment Controller's persistent store (Inventory System
+#: records, deployment sessions/reports, benchmark results, and node
+#: approval decisions -- see ``inventory.database.InventoryDatabase``).
+INVENTORY_DATABASE_FILE = DATA_DIR / "inventory.db"
 
 # ----------------------------------------------------------------------
 # USB Deployment
@@ -159,6 +177,7 @@ __all__ = [
     "ASSETS_DIR",
     "BUILD_DIR",
     "CONFIGS_DIR",
+    "DATA_DIR",
     "DOCS_DIR",
     "RELEASES_DIR",
     "SCRIPTS_DIR",
@@ -179,7 +198,9 @@ __all__ = [
     "BENCHMARK_CONFIG",
     "CLUSTER_CONFIG",
     "CONTROLLER_CONFIG",
+    "CONTROLLER_SERVER_CONFIG",
     "DEPLOYMENT_CONFIG",
+    "INVENTORY_DATABASE_FILE",
     "LOGGING_CONFIG",
     "NETWORK_CONFIG",
     "USB_PHASE1_DIR",

@@ -140,6 +140,14 @@ class DeploymentNodeError(DeploymentError):
     """
 
 
+class DeploymentDuplicateNodeError(DeploymentNodeError):
+    """
+    Raised when a node identifier collides with a different, already
+    registered node (REQ-CTRL-005, REQ-SEC-005: "reject duplicate node
+    identities").
+    """
+
+
 class DeploymentReportError(DeploymentError):
     """
     Raised when deployment reports cannot
@@ -180,6 +188,7 @@ __all__ = [
     "DeploymentCancelledError",
     "DeploymentClusterError",
     "DeploymentConfigurationError",
+    "DeploymentDuplicateNodeError",
     "DeploymentError",
     "DeploymentExecutionError",
     "DeploymentExportError",

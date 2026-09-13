@@ -69,11 +69,15 @@ from common.constants.logging import (
     NETWORK_LOGGER,
     PERFORMANCE_LOG_FILE,
     PERFORMANCE_LOGGER,
+    PREPARATION_LOG_FILE,
+    PREPARATION_LOGGER,
     PROVISIONING_LOG_FILE,
     PROVISIONING_LOGGER,
     RECOVERY_LOG_FILE,
     RECOVERY_LOGGER,
     ROOT_LOGGER,
+    WORKFLOW_LOG_FILE,
+    WORKFLOW_LOGGER,
 )
 from common.exceptions.application import (
     AquilaInitializationError,
@@ -138,11 +142,42 @@ _LEVEL_NAMES: dict[str, int] = {
 #: export stream, so giving either of those two their own *additional*
 #: per-subsystem file would just duplicate the same records under a
 #: near-identical name with no benefit.
+#: Foundational fix (``workflows/`` session): ``PREPARATION_LOGGER``/
+#: ``PREPARATION_LOG_FILE`` already existed in
+#: ``common.constants.logging`` (added when ``preparation/`` was
+#: built, and every ``preparation/*.py`` module already logs through
+#: ``PREPARATION_LOGGER``), but neither was ever imported or added to
+#: this dict -- meaning ``preparation.log`` was never actually
+#: created, and every record logged through ``PREPARATION_LOGGER``
+#: only ever reached the root ``aquila`` logger's aggregate
+#: ``application.log``/console output, never its own dedicated file.
+#: Confirmed genuine (not intentional) by checking
+#: ``services.logging_service.LoggingService.list_log_files()``,
+#: which globs ``*.log`` in this manager's own log directory for
+#: REQ-TC-008 -- a technician asking to see "the preparation log"
+#: would have found nothing. Fixed here at the root rather than
+#: worked around in ``services/``/``workflows/``. ``WORKFLOW_LOGGER``/
+#: ``WORKFLOW_LOG_FILE`` (new, for the ``workflows/`` package this
+#: session introduces) are wired in the same way from the start.
+#: Per-subsystem dedicated file, one entry per requirement in
+#: REQ-LOG-004 through REQ-LOG-010's "the Logging Engine shall record
+#: X events" list: ``DEPLOYMENT_LOGGER`` is where deployment lifecycle
+#: events (REQ-LOG-004) and deployment failures (REQ-LOG-006) both
+#: land, ``INSPECTION_LOGGER`` is REQ-LOG-007's hardware inspection
+#: results, ``PREPARATION_LOGGER`` is REQ-LOG-008's storage
+#: sanitization operations, and ``PROVISIONING_LOGGER``/
+#: ``BOOTSTRAP_LOGGER`` together are REQ-LOG-009's "Provisioning and
+#: Bootstrap events" -- each gets its own rotating file below so a
+#: technician (or ``LoggingService.list_log_files()``, REQ-TC-008) can
+#: find "the preparation log" or "the inspection log" directly rather
+#: than grepping one merged stream.
 _SUBSYSTEM_LOG_FILES: dict[str, str] = {
     DEPLOYMENT_LOGGER: DEPLOYMENT_LOG_FILE,
     RECOVERY_LOGGER: RECOVERY_LOG_FILE,
+    PREPARATION_LOGGER: PREPARATION_LOG_FILE,
     INSPECTION_LOGGER: INSPECTION_LOG_FILE,
     PROVISIONING_LOGGER: PROVISIONING_LOG_FILE,
+    WORKFLOW_LOGGER: WORKFLOW_LOG_FILE,
     NETWORK_LOGGER: NETWORK_LOG_FILE,
     BENCHMARK_LOGGER: BENCHMARK_LOG_FILE,
     HARDWARE_LOGGER: HARDWARE_LOG_FILE,
@@ -432,6 +467,10 @@ class LogManager:
         return logging.getLogger(RECOVERY_LOGGER)
 
     @property
+    def preparation_logger(self) -> logging.Logger:
+        return logging.getLogger(PREPARATION_LOGGER)
+
+    @property
     def inspection_logger(self) -> logging.Logger:
         return logging.getLogger(INSPECTION_LOGGER)
 
@@ -478,6 +517,10 @@ class LogManager:
     @property
     def event_logger(self) -> logging.Logger:
         return logging.getLogger(EVENT_LOGGER)
+
+    @property
+    def workflow_logger(self) -> logging.Logger:
+        return logging.getLogger(WORKFLOW_LOGGER)
 
     # ------------------------------------------------------------------
     # Extension Point (REQ-LOG-015)
