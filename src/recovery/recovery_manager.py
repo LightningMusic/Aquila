@@ -284,6 +284,10 @@ class RecoveryManager:
         progress_callback: ProgressCallback | None,
     ) -> RecoverySummary:
         self._publish(lambda: RecoveryStartedEvent(node_name=node_name))
+        # REQ-REC-021: every recovery operation is logged through the
+        # dedicated "aquila.recovery" logger, starting here and
+        # continuing through the per-failure/per-verification-failure
+        # logging below and the final completion/incomplete log.
         logger.info(
             "Recovery started: %d selected path(s) -> %s",
             len(selected_paths),
@@ -299,6 +303,9 @@ class RecoveryManager:
             selected_paths, destination, progress_callback=progress_callback
         )
 
+        # REQ-REC-022: every copy failure is logged (in addition to
+        # being recorded in the eventual RecoverySummary), and likewise
+        # for every verification failure logged just below.
         for failure in copy_result.failures:
             logger.warning(
                 "Recovery could not copy %s: %s",

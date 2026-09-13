@@ -519,6 +519,11 @@ class DiskSanitizer:
             serial_number=fresh_device.serial_number,
         )
         if not identity_matches:
+            # REQ-PREP-011 ("If storage identity cannot be verified,
+            # sanitization shall not begin"): this is that refusal --
+            # an identity mismatch against REQ-PREP-010's identifiers
+            # raises before ``_clear``/``_refuse_unsupported_secure_erase``
+            # (the actual destructive calls) is ever reached.
             raise DiskSanitizerError(
                 f"Target storage device {device.device_path} no longer "
                 "matches its previously verified identity (capacity, "
@@ -549,6 +554,9 @@ class DiskSanitizer:
         zero_out_entire_disk = method is SanitizationMethod.FULL
 
         started_at = datetime.now(UTC)
+        # REQ-PREP-020 ("shall log every sanitization operation"): start,
+        # failure, and completion of this MSFT_Disk.Clear() call are all
+        # logged below, not just the final outcome.
         logger.info(
             "Sanitizing %s (disk %d) using %s (ZeroOutEntireDisk=%s).",
             device.device_path,

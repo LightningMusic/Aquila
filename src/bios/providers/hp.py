@@ -38,7 +38,7 @@ import subprocess
 import threading
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, cast
 
 from ..models import (
     BIOSMode,
@@ -1567,7 +1567,14 @@ class HPProvider(DefaultProvider):
     def _wmi_out_parameter(result: Any, name: str) -> Any:
         """Best-effort accessor for an out-parameter on a WMI method result."""
         if isinstance(result, dict):
-            return result.get(name)
+            # `isinstance(result, dict)` narrows `Any` to the
+            # unparameterized `dict[Unknown, Unknown]` -- strict
+            # pyright can't infer key/value types an out-parameter
+            # dict from a COM call was never statically typed with in
+            # the first place. The cast documents that this is
+            # genuinely a best-effort, dynamically-typed accessor, not
+            # a hidden Unknown left unexamined.
+            return cast(Dict[str, Any], result).get(name)
 
         return getattr(result, name, None)
 
@@ -1605,7 +1612,9 @@ class HPProvider(DefaultProvider):
     def _safe_property_value(row: Any, name: str) -> Any:
         try:
             if isinstance(row, dict):
-                return row.get(name)
+                # See _wmi_out_parameter's identical cast above for
+                # why this is necessary under strict pyright.
+                return cast(Dict[str, Any], row).get(name)
 
             return getattr(row, name, None)
         except Exception:

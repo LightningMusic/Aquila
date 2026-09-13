@@ -49,8 +49,8 @@ _ADAPTER_QUERY = (
     "FROM Win32_NetworkAdapter"
 )
 _CONFIG_QUERY = (
-    "SELECT Index, IPAddress FROM Win32_NetworkAdapterConfiguration "
-    "WHERE IPEnabled = TRUE"
+    "SELECT Index, IPAddress, DefaultIPGateway FROM "
+    "Win32_NetworkAdapterConfiguration WHERE IPEnabled = TRUE"
 )
 _DRIVER_QUERY = "SELECT DeviceID, DriverVersion FROM Win32_PnPSignedDriver"
 
@@ -108,15 +108,30 @@ class NetworkDetector:
         config_rows = query_wmi_safe(_WMI_NAMESPACE, _CONFIG_QUERY)
         driver_rows = query_wmi_safe(_WMI_NAMESPACE, _DRIVER_QUERY)
 
-        ip_by_index = self._index_ip_addresses(config_rows)
+        ip_by_index = self._index_wmi_array_property(config_rows, "IPAddress")
+        gateway_by_index = self._index_wmi_array_property(
+            config_rows, "DefaultIPGateway"
+        )
 
         return [
-            self._adapter_from_row(row, ip_by_index, driver_rows)
+            self._adapter_from_row(
+                row, ip_by_index, gateway_by_index, driver_rows
+            )
             for row in adapter_rows
         ]
 
     @staticmethod
-    def _index_ip_addresses(config_rows: list[Any]) -> Dict[int, list[str]]:
+    def _index_wmi_array_property(
+        config_rows: list[Any], property_name: str
+    ) -> Dict[int, list[str]]:
+        """
+        Index a string-array ``Win32_NetworkAdapterConfiguration``
+        property (``IPAddress``, ``DefaultIPGateway``, ...) by
+        ``Index``. Shared by both properties -- they have the exact
+        same WMI shape (a possibly-``None`` array of strings) and
+        differ only in which key is being read.
+        """
+
         indexed: Dict[int, list[str]] = {}
         for row in config_rows:
             raw_index = safe_property_value(row, "Index")
@@ -127,19 +142,19 @@ class NetworkDetector:
             if index is None:
                 continue
 
-            raw_ips = safe_property_value(row, "IPAddress")
-            if raw_ips is None:
+            raw_values = safe_property_value(row, property_name)
+            if raw_values is None:
                 continue
 
             # The ``wmi`` package returns tuples/lists natively; raw
             # COM automation returns a VARIANT array that behaves the
             # same way when iterated.
             try:
-                ip_list = [str(ip) for ip in raw_ips if ip]
+                value_list = [str(value) for value in raw_values if value]
             except TypeError:
-                ip_list = [str(raw_ips)]
+                value_list = [str(raw_values)]
 
-            indexed[index] = ip_list
+            indexed[index] = value_list
 
         return indexed
 
@@ -147,6 +162,7 @@ class NetworkDetector:
         self,
         row: object,
         ip_by_index: Dict[int, list[str]],
+        gateway_by_index: Dict[int, list[str]],
         driver_rows: list[Any],
     ) -> NetworkAdapter:
         name = str(safe_property_value(row, "Name") or "")
@@ -190,6 +206,10 @@ class NetworkDetector:
             driver_version=self._driver_version(driver_rows, pnp_device_id),
             link_status=link_status,
             ip_addresses=ip_by_index.get(index, []) if index is not None else [],
+            default_gateways=(
+                gateway_by_index.get(index, []) if index is not None else []
+            ),
+            interface_index=index,
         )
 
     @staticmethod

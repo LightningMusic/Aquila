@@ -5,9 +5,15 @@ Project Aquila
 BIOS/Firmware Detection
 
 Implements REQ-INS-014 (detect UEFI firmware), REQ-INS-015 (determine
-Secure Boot status), REQ-INS-016 through REQ-INS-019 (system
-manufacturer/model/serial/BIOS version identity), REQ-INS-022 (detect
-lid switch support on portable systems), and REQ-INS-023 (detect
+Secure Boot status), REQ-INS-016 (retrieve system manufacturer
+information), REQ-INS-017 (retrieve model information), REQ-INS-018
+(retrieve serial number information when available), and REQ-INS-019
+(retrieve BIOS/firmware version information) -- manufacturer, model,
+serial number, and BIOS/firmware version all arrive together on the
+``FirmwareInformation`` record returned by the active provider's
+``firmware_information()`` and are carried through unchanged on
+``BIOSInspectionInfo.firmware`` below -- as well as REQ-INS-022 (detect
+lid switch support on portable systems) and REQ-INS-023 (detect
 supported firmware management interfaces).
 
 This detector does not re-implement firmware identity or TPM

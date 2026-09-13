@@ -10,19 +10,23 @@ destination), REQ-REC-008 (verify sufficient destination free space
 before beginning), REQ-REC-009 (preserve original directory
 structure), REQ-REC-010 (preserve file timestamps), REQ-REC-011
 (display recovery progress), REQ-REC-013 (report files that could not
-be copied), REQ-REC-018/019/020 (never alter, delete, or modify the
-metadata of source files), REQ-REC-023 (continue recovering remaining
-accessible data when unreadable sectors are encountered), and
-REQ-REC-025 (terminate immediately if the destination becomes
-unavailable).
+be copied), REQ-REC-018 (never alter source files), REQ-REC-019 (never
+delete source files), REQ-REC-020 (never modify source file metadata),
+REQ-REC-023 (continue recovering remaining accessible data when
+unreadable sectors are encountered), and REQ-REC-025 (terminate
+immediately if the destination becomes unavailable).
 
-Source immutability (REQ-REC-018/019/020)
--------------------------------------------
+Source immutability (REQ-REC-018, REQ-REC-019, REQ-REC-020)
+-------------------------------------------------------------
 Every operation in this module opens source files for reading only.
 ``common.utils.filesystem.copy_file`` (reused here rather than
 duplicated) is a thin wrapper over ``shutil.copy2``, which itself only
 reads the source -- nothing in this module's call graph ever opens a
-source path for writing, renames it, or deletes it.
+source path for writing, renames it, or deletes it. Because the
+source is never written to, it is by construction never altered
+(REQ-REC-018), never deleted (REQ-REC-019), and its metadata (as read
+by ``shutil.copy2``, which sets timestamps/permissions only on the
+*destination* copy) is never modified (REQ-REC-020).
 
 Author:
     Project Aquila Development Team
@@ -145,7 +149,9 @@ class RecoveryCopier:
             return 0
 
     # ------------------------------------------------------------------
-    # Copying (REQ-REC-006/007/009/010/011/013/018/019/020/023/025)
+    # Copying (REQ-REC-006, REQ-REC-007, REQ-REC-009, REQ-REC-010,
+    # REQ-REC-011, REQ-REC-013, REQ-REC-018, REQ-REC-019, REQ-REC-020,
+    # REQ-REC-023, REQ-REC-025)
     # ------------------------------------------------------------------
 
     def copy_selection(
