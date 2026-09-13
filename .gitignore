@@ -1,6 +1,12 @@
 build/
 dist/
 *.spec
+!Aquila.spec
 *.pyc
 *.zip
 __pycache__/
+.venv/
+*.egg-info/
+.cache/
+usb/*
+releases/*
