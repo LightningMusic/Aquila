@@ -97,17 +97,42 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$UsbDriveLetter,
 
-    # Repository root -- defaults to this script's own repo checkout.
-    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+    # Repository root -- defaults to this script's own repo checkout,
+    # resolved in the body rather than here. This is an advanced script
+    # ([CmdletBinding()] with mandatory parameters), and PowerShell
+    # evaluates parameter defaults during parameter binding, before the
+    # script scope exists and $PSScriptRoot is populated -- so a default
+    # referencing $PSScriptRoot binds to an empty string under the
+    # `powershell -File` invocation build_deployment_usb.bat uses.
+    [string]$RepoRoot,
 
     # Pre-built aquila.exe. If not supplied, built automatically from
     # $RepoRoot\Aquila.spec (see Invoke-PyInstallerBuild).
     [string]$AquilaExePath,
 
-    [string]$Architecture = "amd64"
+    [string]$Architecture = "amd64",
+
+    # Optional: a folder of extracted (.inf-based) drivers to inject
+    # into the boot image (Step 4, Add-Drivers) -- e.g. a wireless
+    # NIC driver WinPE's inbox set doesn't already cover. Recurses
+    # into subfolders. Left unset, Step 4 is skipped entirely.
+    [string]$DriversDir,
+
+    # Opt-in, dev/test only (see config.schemas.network_schema
+    # .NetworkConfig.allow_wireless_provisioning's docstring) -- adds
+    # WinPE's WiFi optional component so the image *can* associate to
+    # a wireless network at all. Off by default: the finished-product
+    # design is Ethernet-only, and this component (plus whatever
+    # wireless driver -DriversDir supplies) has no reason to be in a
+    # normal build.
+    [switch]$IncludeWifiSupport
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $RepoRoot) {
+    $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+}
 
 function Write-Step {
     param([string]$Message)
@@ -161,7 +186,10 @@ function Invoke-PyInstallerBuild {
 
     Push-Location $RepoRoot
     try {
-        & pyinstaller Aquila.spec --noconfirm
+        # Out-Host for the same reason as Mount-BootImage's DISM call:
+        # this function returns $builtExe, and PyInstaller's own output
+        # would otherwise be returned with it.
+        & pyinstaller Aquila.spec --noconfirm | Out-Host
         if ($LASTEXITCODE -ne 0) {
             throw "pyinstaller exited with code $LASTEXITCODE."
         }
@@ -225,7 +253,12 @@ function Mount-BootImage {
         New-Item -ItemType Directory -Path $mountDir | Out-Null
     }
 
-    Dism /Mount-Image /ImageFile:$bootWim /Index:1 /MountDir:$mountDir
+    # Out-Host, not bare invocation: a PowerShell function returns
+    # everything written to the output stream, so DISM's banner and
+    # progress bar would otherwise be returned alongside $mountDir and
+    # every later /Image:/MountDir: argument would be built from that
+    # array instead of the path (DISM error 87).
+    Dism /Mount-Image /ImageFile:$bootWim /Index:1 /MountDir:$mountDir | Out-Host
     if ($LASTEXITCODE -ne 0) {
         throw "Dism /Mount-Image exited with code $LASTEXITCODE."
     }
@@ -249,7 +282,7 @@ function Mount-BootImage {
 # ---------------------------------------------------------------------------
 
 function Add-RequiredOptionalComponents {
-    param([string]$MountDir, [string]$Architecture)
+    param([string]$MountDir, [string]$Architecture, [switch]$IncludeWifiSupport)
 
     Write-Step "Step 3: adding WinPE optional components (WMI + prerequisites)"
 
@@ -265,6 +298,17 @@ function Add-RequiredOptionalComponents {
     # missing prerequisite if this list is ever wrong for a given ADK
     # version).
     $components = @("WinPE-WMI", "WinPE-NetFX", "WinPE-Scripting", "WinPE-PowerShell")
+
+    if ($IncludeWifiSupport) {
+        # WinPE-WiFi-Package (netsh wlan / WLAN AutoConfig) depends on
+        # WinPE-Dot3Svc per Microsoft's WinPE Optional Components
+        # Reference -- added last since WMI/NetFX/Scripting above are
+        # not among its prerequisites, only WiFi's own. Dev/test only
+        # -- see this script's -IncludeWifiSupport parameter and
+        # networking.wifi's module docstring for why this exists and
+        # why it defaults off.
+        $components += @("WinPE-Dot3Svc", "WinPE-WiFi-Package")
+    }
 
     foreach ($component in $components) {
         $cab = Join-Path $ocRoot "$component.cab"
@@ -413,7 +457,8 @@ New-WinPEWorkingTree -WorkDir $WorkDir -Architecture $Architecture
 $mountDir = Mount-BootImage -WorkDir $WorkDir
 
 try {
-    Add-RequiredOptionalComponents -MountDir $mountDir -Architecture $Architecture
+    Add-RequiredOptionalComponents -MountDir $mountDir -Architecture $Architecture -IncludeWifiSupport:$IncludeWifiSupport
+    Add-Drivers -MountDir $mountDir -DriversDir $DriversDir
     Install-AquilaPayload `
         -MountDir $mountDir `
         -RepoRoot $RepoRoot `
