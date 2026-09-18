@@ -73,6 +73,25 @@ class NetworkConfig:
     connectivity_check_timeout_seconds: int = 30
     connectivity_check_retry_count: int = 3
 
+    # Dev/test-only wireless fallback (NOT part of the finished-product
+    # design -- see this module's own docstring and the SRS's Ethernet-
+    # only Networking Engine scope). When ``allow_wireless_provisioning``
+    # is left False (the default), nothing below has any effect and
+    # behavior is identical to every prior release: Ethernet is the only
+    # link Aquila Node Provisioning will ever accept. When explicitly
+    # enabled, a configured Wi-Fi network is used as a fallback -- not a
+    # replacement -- whenever no Ethernet link is present, for hardware
+    # (a Chromebook, a machine with no cabled network nearby) where
+    # wiring in Ethernet for testing isn't practical yet. WPA2-PSK only;
+    # open and enterprise (802.1X) networks are not supported.
+    allow_wireless_provisioning: bool = False
+    wifi_ssid: Optional[str] = None
+    #: Name of the environment variable holding the Wi-Fi password --
+    #: never the password itself (REQ-SEC-008/009/010's existing
+    #: "configuration stores only the secret's location" convention,
+    #: e.g. ``ClusterConfig.join_token_env_var``).
+    wifi_password_env_var: Optional[str] = None
+
     extensions: dict[str, Any] = field(default_factory=lambda: {})
 
     def __post_init__(self) -> None:
@@ -139,6 +158,9 @@ class NetworkConfig:
             "require_dns_resolution",
             "connectivity_check_timeout_seconds",
             "connectivity_check_retry_count",
+            "allow_wireless_provisioning",
+            "wifi_ssid",
+            "wifi_password_env_var",
         }
 
         extensions = {
@@ -210,6 +232,15 @@ class NetworkConfig:
                 field_name="connectivity_check_retry_count",
                 default=3,
             ),
+            allow_wireless_provisioning=coerce_bool(
+                mapping.get("allow_wireless_provisioning"),
+                field_name="allow_wireless_provisioning",
+                default=False,
+            ),
+            wifi_ssid=_optional_str(mapping.get("wifi_ssid")),
+            wifi_password_env_var=_optional_str(
+                mapping.get("wifi_password_env_var")
+            ),
             extensions=extensions,
         )
 
@@ -239,6 +270,9 @@ class NetworkConfig:
             "connectivity_check_retry_count": (
                 self.connectivity_check_retry_count
             ),
+            "allow_wireless_provisioning": self.allow_wireless_provisioning,
+            "wifi_ssid": self.wifi_ssid,
+            "wifi_password_env_var": self.wifi_password_env_var,
             **self.extensions,
         }
 

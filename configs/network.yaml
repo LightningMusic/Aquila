@@ -36,3 +36,17 @@ require_dns_resolution: true
 
 connectivity_check_timeout_seconds: 30
 connectivity_check_retry_count: 3
+
+# Dev/test-only wireless fallback -- NOT part of the finished product.
+# Leave allow_wireless_provisioning false for a real deployment: this
+# project's Ethernet-only design (reliable, low-latency, no credentials
+# to manage on removable media) is what ships. Enable this only to test
+# on hardware you don't yet have Ethernet wired to. Used as a fallback,
+# not a replacement -- Aquila still prefers Ethernet whenever a link is
+# present. WPA2-PSK only.
+allow_wireless_provisioning: false
+wifi_ssid: null
+# Name of an environment variable holding the Wi-Fi password (never the
+# password itself -- set the variable on the machine building the USB,
+# or in a small script the USB runs before Aquila starts).
+wifi_password_env_var: null

@@ -57,6 +57,7 @@ from dataclasses import dataclass
 
 from common.constants.logging import PROVISIONING_LOGGER
 from config.schemas.deployment_schema import DeploymentConfig
+from config.schemas.network_schema import NetworkConfig
 from inspection.report import HardwareInspectionReport
 from models.hardware.cpu import CPUArchitecture
 from models.hardware.network import NetworkAdapterType
@@ -120,6 +121,7 @@ class MinimumRequirementsValidator:
         report: HardwareInspectionReport,
         deployment_config: DeploymentConfig,
         target_device: StorageDevice,
+        network_config: NetworkConfig | None = None,
     ) -> MinimumRequirementsResult:
         """
         Return a check-by-check REQ-PROV-005 result.
@@ -135,13 +137,20 @@ class MinimumRequirementsValidator:
                 REQ-PROV-003(v1)/REQ-PROV-005's "sufficient storage
                 capacity" is checked against this device, not merely
                 the largest device in the system.
+            network_config: Dev/test-only (see ``NetworkConfig
+                .allow_wireless_provisioning``). Left ``None`` (the
+                default), the Ethernet check below behaves exactly as
+                every prior release. Only ever supplied by
+                ``provisioning_manager.py``, and only relevant at all
+                when the technician has explicitly enabled the
+                wireless fallback.
         """
 
         checks = (
             self._check_architecture(report),
             self._check_memory(report, deployment_config),
             self._check_storage(target_device, deployment_config),
-            self._check_ethernet(report),
+            self._check_ethernet(report, network_config),
             self._check_virtualization(report, deployment_config),
         )
 
@@ -217,7 +226,10 @@ class MinimumRequirementsValidator:
         return RequirementCheck(name="storage_capacity", passed=passed, detail=detail)
 
     @staticmethod
-    def _check_ethernet(report: HardwareInspectionReport) -> RequirementCheck:
+    def _check_ethernet(
+        report: HardwareInspectionReport,
+        network_config: NetworkConfig | None = None,
+    ) -> RequirementCheck:
         adapters = report.network.data
         has_functional_ethernet = any(
             adapter.adapter_type is NetworkAdapterType.ETHERNET
@@ -225,16 +237,45 @@ class MinimumRequirementsValidator:
             and adapter.is_enabled
             for adapter in adapters
         )
+        if has_functional_ethernet:
+            return RequirementCheck(
+                name="ethernet_interface",
+                passed=True,
+                detail="A physical, enabled Ethernet adapter was detected.",
+            )
+
+        # Dev/test-only wireless fallback (NetworkConfig
+        # .allow_wireless_provisioning) -- REQ-PROV-005/REQ-NET-002's
+        # real requirement is still Ethernet; this only relaxes the
+        # *minimum-requirements* check, not REQ-PROV-002/003's live
+        # connectivity check, which still has to actually succeed
+        # (over Wi-Fi, in this dev/test mode) for provisioning to
+        # proceed any further.
+        if network_config is not None and network_config.allow_wireless_provisioning:
+            has_functional_wireless = any(
+                adapter.adapter_type is NetworkAdapterType.WIRELESS
+                and adapter.is_physical
+                and adapter.is_enabled
+                for adapter in adapters
+            )
+            if has_functional_wireless:
+                return RequirementCheck(
+                    name="ethernet_interface",
+                    passed=True,
+                    detail=(
+                        "No Ethernet adapter was detected, but a physical, "
+                        "enabled wireless adapter was -- accepted because "
+                        "allow_wireless_provisioning is enabled (dev/test "
+                        "only)."
+                    ),
+                )
+
         return RequirementCheck(
             name="ethernet_interface",
-            passed=has_functional_ethernet,
+            passed=False,
             detail=(
-                "A physical, enabled Ethernet adapter was detected."
-                if has_functional_ethernet
-                else (
-                    "No physical, enabled Ethernet adapter was detected -- "
-                    "REQ-PROV-005/REQ-NET-002 require one."
-                )
+                "No physical, enabled Ethernet adapter was detected -- "
+                "REQ-PROV-005/REQ-NET-002 require one."
             ),
         )
 

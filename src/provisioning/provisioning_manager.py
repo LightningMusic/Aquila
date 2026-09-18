@@ -52,6 +52,7 @@ from common.events.types.deployment import (
 from common.exceptions.deployment import DeploymentProvisioningError
 from config.schemas.controller_schema import ControllerConfig
 from config.schemas.deployment_schema import DeploymentConfig
+from config.schemas.network_schema import NetworkConfig
 from inspection.report import HardwareInspectionReport
 from models.hardware.storage import StorageDevice
 from preparation.report import PreparationSummary
@@ -150,6 +151,7 @@ class ProvisioningManager:
         connectivity_retry_count: int | None = None,
         connectivity_retry_delay_seconds: float | None = None,
         connectivity_sleep: Callable[[float], None] | None = None,
+        network_config: NetworkConfig | None = None,
     ) -> ProvisioningSummary:
         """
         Validate, render, and (if every prerequisite passes) hand off
@@ -214,6 +216,11 @@ class ProvisioningManager:
                 dependency-injection discipline every other
                 live-system-touching call in this codebase already
                 follows.
+            network_config: Dev/test-only (see ``NetworkConfig
+                .allow_wireless_provisioning``). Left ``None`` (the
+                default), both the minimum-requirements check and the
+                live connectivity re-check below are Ethernet-only,
+                identical to every prior release.
 
         Raises:
             DeploymentProvisioningError: If ``preparation_summary`` is
@@ -256,7 +263,7 @@ class ProvisioningManager:
         # there is no reason to spend that time once an earlier,
         # cheaper check has already determined the run cannot proceed.
         requirements_result = self._validator.validate(
-            inspection_report, deployment_config, target_device
+            inspection_report, deployment_config, target_device, network_config
         )
         if not requirements_result.satisfied:
             aborted = True
@@ -265,7 +272,12 @@ class ProvisioningManager:
 
         if not aborted:
             ethernet_result = self._connectivity_checker.check_ethernet(
-                **connectivity_kwargs
+                allow_wireless=(
+                    network_config.allow_wireless_provisioning
+                    if network_config is not None
+                    else False
+                ),
+                **connectivity_kwargs,
             )
             if not ethernet_result.connected:
                 aborted = True

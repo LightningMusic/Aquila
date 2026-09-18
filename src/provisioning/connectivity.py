@@ -65,6 +65,7 @@ from config.schemas.controller_schema import ControllerConfig
 from hardware.network import NetworkDetector
 from networking.controller import ControllerReachabilityChecker
 from networking.ethernet import EthernetChecker
+from networking.wifi import WirelessChecker
 
 logger = logging.getLogger(PROVISIONING_LOGGER)
 
@@ -135,6 +136,7 @@ class ConnectivityChecker:
         retry_count: int = NETWORK_RETRY_COUNT,
         retry_delay_seconds: float = NETWORK_RETRY_DELAY_SECONDS,
         sleep: Callable[[float], None] = time.sleep,
+        allow_wireless: bool = False,
     ) -> EthernetCheckResult:
         """
         REQ-PROV-002/003: verify Ethernet connectivity is present right
@@ -154,6 +156,18 @@ class ConnectivityChecker:
         implementation), adapting its ``EthernetLinkResult`` into this
         module's own, pre-existing ``EthernetCheckResult`` shape so
         every existing caller of this method is unaffected.
+
+        Args:
+            allow_wireless: Dev/test-only (see ``NetworkConfig
+                .allow_wireless_provisioning``). Defaults to False, so
+                every existing caller's behavior is unchanged. When
+                True and no Ethernet link is present, re-checks
+                whether a wireless link is already associated
+                (:meth:`networking.wifi.WirelessChecker.check_link` --
+                this is a fresh re-verification, not a new connection
+                attempt; ``networking.network_manager.NetworkManager
+                .establish_connectivity`` already did the actual
+                connecting, earlier in the same Provisioning run).
         """
 
         checker = EthernetChecker(network_detector=self._network_detector)
@@ -162,9 +176,27 @@ class ConnectivityChecker:
             retry_delay_seconds=retry_delay_seconds,
             sleep=sleep,
         )
+        if result.connected or not allow_wireless:
+            return EthernetCheckResult(
+                connected=result.connected,
+                detail=result.detail,
+                checked_adapter_names=result.checked_adapter_names,
+            )
+
+        wireless_result = WirelessChecker().check_link()
+        if wireless_result.connected:
+            logger.info(
+                "No Ethernet link, but the dev/test-only wireless "
+                "fallback is still associated: %s",
+                wireless_result.detail,
+            )
         return EthernetCheckResult(
-            connected=result.connected,
-            detail=result.detail,
+            connected=wireless_result.connected,
+            detail=(
+                wireless_result.detail
+                if wireless_result.connected
+                else f"{result.detail} Wireless fallback also failed: {wireless_result.detail}"
+            ),
             checked_adapter_names=result.checked_adapter_names,
         )
 

@@ -78,6 +78,7 @@ from common.events.types.networking import (
     IPConfigurationFailedEvent,
 )
 from common.exceptions.networking import NetworkingError
+from config.manager import ConfigurationManager
 from config.schemas.cluster_schema import ClusterConfig
 from config.schemas.controller_schema import ControllerConfig
 from config.schemas.network_schema import NetworkConfig
@@ -89,6 +90,7 @@ from .dhcp import AddressAssignmentResult, NetworkAddressAssigner
 from .dns import DNSResolutionChecker, DNSResolutionResult
 from .ethernet import EthernetChecker
 from .gateway import GatewayChecker, GatewayReachabilityResult
+from .wifi import WirelessChecker, WirelessLinkResult
 
 if TYPE_CHECKING:
     # Imported only for type annotations -- this module never
@@ -123,6 +125,16 @@ class NetworkDiagnostics:
     ip_assignment_succeeded: bool
     ip_assignment_detail: str
     assigned_ip_addresses: tuple[str, ...] = ()
+
+    #: Dev/test-only wireless fallback result (see ``NetworkConfig
+    #: .allow_wireless_provisioning``) -- ``wireless_connected`` is
+    #: only ever True when ``ethernet_connected`` is False and the
+    #: fallback was both enabled and successful. Kept as its own,
+    #: honestly-named field rather than folded into
+    #: ``ethernet_connected`` -- a report reader should never be told
+    #: "Ethernet" when the real link was Wi-Fi.
+    wireless_connected: bool = False
+    wireless_detail: str = ""
 
     gateway_checked: bool = False
     gateway_reachable: bool = False
@@ -159,7 +171,9 @@ class NetworkDiagnostics:
 
         if self.aborted:
             return False
-        if not self.ethernet_connected or not self.ip_assignment_succeeded:
+        if not (self.ethernet_connected or self.wireless_connected):
+            return False
+        if not self.ip_assignment_succeeded:
             return False
         if self.gateway_checked and not self.gateway_reachable:
             return False
@@ -185,6 +199,8 @@ class NetworkDiagnostics:
             "completed_at": self.completed_at.isoformat(),
             "ethernet_connected": self.ethernet_connected,
             "ethernet_detail": self.ethernet_detail,
+            "wireless_connected": self.wireless_connected,
+            "wireless_detail": self.wireless_detail,
             "ip_assignment_method": self.ip_assignment_method,
             "ip_assignment_succeeded": self.ip_assignment_succeeded,
             "ip_assignment_detail": self.ip_assignment_detail,
@@ -241,6 +257,7 @@ class NetworkManager:
         event_bus: Optional["EventBus"] = None,
         *,
         ethernet_checker: EthernetChecker | None = None,
+        wireless_checker: WirelessChecker | None = None,
         address_assigner: NetworkAddressAssigner | None = None,
         gateway_checker: GatewayChecker | None = None,
         dns_checker: DNSResolutionChecker | None = None,
@@ -250,6 +267,7 @@ class NetworkManager:
         self._event_bus: Optional["EventBus"] = event_bus
 
         self._ethernet_checker = ethernet_checker or EthernetChecker()
+        self._wireless_checker = wireless_checker or WirelessChecker()
         self._address_assigner = address_assigner or NetworkAddressAssigner()
         self._gateway_checker = gateway_checker or GatewayChecker()
         self._dns_checker = dns_checker or DNSResolutionChecker()
@@ -316,6 +334,7 @@ class NetworkManager:
 
         aborted = False
         abort_reason: str | None = None
+        wireless_result: WirelessLinkResult | None = None
 
         # -- REQ-NET-001/002/003/004: Ethernet ---------------------------
         ethernet_result = self._ethernet_checker.check_link(
@@ -333,6 +352,57 @@ class NetworkManager:
                     link_up=True,
                 )
             )
+        elif config.allow_wireless_provisioning and config.wifi_ssid:
+            # Dev/test-only fallback -- see NetworkConfig
+            # .allow_wireless_provisioning's own docstring. Only
+            # attempted because Ethernet just failed above; a present
+            # Ethernet link always wins.
+            logger.warning(
+                "No Ethernet link -- falling back to Wi-Fi ('%s'). This "
+                "is a dev/test-only path, not the finished-product "
+                "design (REQ-NET is Ethernet-only).",
+                config.wifi_ssid,
+            )
+            wifi_password = (
+                ConfigurationManager.resolve_secret(config.wifi_password_env_var)
+                if config.wifi_password_env_var
+                else None
+            )
+            if not wifi_password:
+                primary_adapter = None
+                aborted = True
+                abort_reason = (
+                    "allow_wireless_provisioning is enabled but the Wi-Fi "
+                    f"password was not found in environment variable "
+                    f"'{config.wifi_password_env_var}'."
+                )
+                logger.error("Networking Engine halted (REQ-NET-014): %s", abort_reason)
+            else:
+                wireless_result = self._wireless_checker.connect(
+                    config.wifi_ssid,
+                    wifi_password,
+                    retry_count=retry_count,
+                    retry_delay_seconds=retry_delay_seconds,
+                    sleep=sleep,
+                )
+                if wireless_result.connected and wireless_result.primary_adapter is not None:
+                    primary_adapter = wireless_result.primary_adapter
+                    logger.info(
+                        "Wireless fallback connected: %s", wireless_result.detail
+                    )
+                    # No EthernetDetectedEvent here -- publishing an
+                    # Ethernet-labeled event for a Wi-Fi link would be
+                    # exactly the dishonest-degradation this codebase
+                    # otherwise refuses to do. NetworkDiagnostics
+                    # .wireless_connected/.wireless_detail (below) are
+                    # this dev-only path's audit trail instead.
+                else:
+                    primary_adapter = None
+                    aborted = True
+                    abort_reason = wireless_result.detail
+                    logger.error(
+                        "Networking Engine halted (REQ-NET-014): %s", abort_reason
+                    )
         else:
             primary_adapter = None
             aborted = True
@@ -493,6 +563,12 @@ class NetworkManager:
             completed_at=completed_at,
             ethernet_connected=ethernet_result.connected,
             ethernet_detail=ethernet_result.detail,
+            wireless_connected=(
+                wireless_result.connected if wireless_result is not None else False
+            ),
+            wireless_detail=(
+                wireless_result.detail if wireless_result is not None else ""
+            ),
             ip_assignment_method=config.ip_assignment_method,
             ip_assignment_succeeded=assignment_result.succeeded,
             ip_assignment_detail=assignment_result.detail,

@@ -654,6 +654,7 @@ class ProvisioningWorkflowStage:
             connectivity_retry_count=connectivity_retry_count,
             connectivity_retry_delay_seconds=connectivity_retry_delay_seconds,
             connectivity_sleep=connectivity_sleep,
+            network_config=network_config,
         )
 
         if summary.aborted:
