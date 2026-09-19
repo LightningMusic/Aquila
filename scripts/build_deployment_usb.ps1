@@ -125,7 +125,23 @@ param(
     # design is Ethernet-only, and this component (plus whatever
     # wireless driver -DriversDir supplies) has no reason to be in a
     # normal build.
-    [switch]$IncludeWifiSupport
+    [switch]$IncludeWifiSupport,
+
+    # Erase the target USB's entire partition table before writing,
+    # leaving one active FAT32 partition spanning the disk.
+    #
+    # MakeWinPEMedia /UFD only runs "select volume / format / active"
+    # -- it reformats the chosen *volume* and never touches the
+    # partition table. A stick that previously held a multi-partition
+    # layout therefore keeps its other partitions, and any bootloader
+    # on them, which is enough to stop the target machine booting this
+    # media at all (found the hard way on a Ventoy stick: its 32MB
+    # VTOYEFI partition, with Ventoy's own EFI bootloader and GRUB,
+    # survived the build and the target silently refused to boot).
+    #
+    # Off by default because it is destructive beyond the single
+    # volume the operator named (GP-001).
+    [switch]$CleanUsbDisk
 )
 
 $ErrorActionPreference = "Stop"
@@ -388,7 +404,15 @@ function Install-AquilaPayload {
     # logic -- a technician can edit these directly on the mounted USB
     # without rebuilding aquila.exe at all).
     Write-Host "  Copying configs/"
-    Copy-Item -Path (Join-Path $RepoRoot "configs") -Destination (Join-Path $phase1Root "configs") -Recurse -Force
+    # Remove first: Copy-Item -Recurse onto an *existing* directory copies
+    # the source folder inside it rather than over it, so re-running this
+    # build against a reused -WorkDir would leave configs\configs\ (and
+    # configs\configs\configs\ on the run after that).
+    $configsDest = Join-Path $phase1Root "configs"
+    if (Test-Path $configsDest) {
+        Remove-Item $configsDest -Recurse -Force
+    }
+    Copy-Item -Path (Join-Path $RepoRoot "configs") -Destination $configsDest -Recurse -Force
 
     # 5c. Startnet.cmd -- WinPE's own startup script. wpeinit first
     # (Plug and Play/networking bring-up -- see Microsoft's own
@@ -419,24 +443,126 @@ function Dismount-BootImage {
 }
 
 # ---------------------------------------------------------------------------
+# Step 6b: optionally erase the USB's whole partition table first
+# ---------------------------------------------------------------------------
+
+function Clear-UsbDisk {
+    param([string]$UsbDriveLetter)
+
+    Write-Step "Step 6b: erasing all partitions on the disk behind $UsbDriveLetter`:"
+
+    $partition = Get-Partition -DriveLetter $UsbDriveLetter -ErrorAction Stop
+    $disk = Get-Disk -Number $partition.DiskNumber -ErrorAction Stop
+
+    # Refuse anything that is not an unremarkable USB stick. -CleanUsbDisk
+    # destroys every partition on the disk, not just the named volume, so
+    # a wrong drive letter here would be unrecoverable -- these three
+    # checks are what stand between a typo and someone's system disk.
+    if ($disk.BusType -ne "USB") {
+        throw (
+            "Refusing to clean disk $($disk.Number) ('$($disk.FriendlyName)'): " +
+            "its bus type is '$($disk.BusType)', not USB. -CleanUsbDisk only " +
+            "operates on USB media."
+        )
+    }
+    if ($disk.IsSystem -or $disk.IsBoot) {
+        throw (
+            "Refusing to clean disk $($disk.Number) ('$($disk.FriendlyName)'): " +
+            "it is the system and/or boot disk."
+        )
+    }
+
+    Write-Host ("  Disk {0}: '{1}', {2:N1} GB, {3}" -f `
+        $disk.Number, $disk.FriendlyName, ($disk.Size / 1GB), $disk.PartitionStyle)
+    foreach ($existing in (Get-Partition -DiskNumber $disk.Number -ErrorAction SilentlyContinue)) {
+        Write-Host ("    partition {0}: {1}{2:N0} MB" -f `
+            $existing.PartitionNumber,
+            $(if ($existing.DriveLetter) { "$($existing.DriveLetter): " } else { "" }),
+            ($existing.Size / 1MB))
+    }
+    Write-Warning "Every partition listed above is about to be erased."
+
+    # diskpart rather than Clear-Disk/New-Partition/Format-Volume:
+    # Format-Volume refuses to create FAT32 above 32GB, while diskpart's
+    # own "format fs=fat32 quick" does not -- and diskpart is already
+    # this toolchain's formatting path (MakeWinPEMedia /UFD shells out
+    # to it too).
+    $script = Join-Path $env:TEMP "AquilaCleanUsbDisk.txt"
+    @(
+        "select disk $($disk.Number)"
+        "clean"
+        "create partition primary"
+        "active"
+        "format fs=fat32 quick label=`"AQUILA`""
+        "assign letter=$UsbDriveLetter"
+    ) | Set-Content -Path $script -Encoding ASCII
+
+    try {
+        & diskpart.exe /s $script | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+            throw "diskpart exited with code $LASTEXITCODE."
+        }
+    }
+    finally {
+        Remove-Item $script -Force -ErrorAction SilentlyContinue
+    }
+
+    # Windows needs a moment to surface the newly assigned letter before
+    # MakeWinPEMedia's own "select volume=" can find it.
+    Start-Sleep -Seconds 3
+}
+
+# ---------------------------------------------------------------------------
 # Step 7: write bootable media to the USB drive
 # ---------------------------------------------------------------------------
 
 function Write-UsbMedia {
-    param([string]$WorkDir, [string]$UsbDriveLetter)
+    param([string]$WorkDir, [string]$UsbDriveLetter, [switch]$DiskAlreadyCleaned)
 
     Write-Step "Step 7: writing bootable media to $UsbDriveLetter`:"
-    Write-Warning (
-        "MakeWinPEMedia /UFD reformats $UsbDriveLetter`: -- confirm this " +
-        "is the correct drive before continuing. This script does NOT " +
-        "auto-confirm; it lets MakeWinPEMedia's own interactive prompt " +
-        "stand (GP-001: no scripted shortcut past a destructive " +
-        "confirmation)."
-    )
 
-    & MakeWinPEMedia.cmd /UFD $WorkDir "$UsbDriveLetter`:"
+    if ($DiskAlreadyCleaned) {
+        # /f (skip MakeWinPEMedia's own prompt) is used *only* on the
+        # -CleanUsbDisk path. That is not a shortcut past an operator
+        # decision: -CleanUsbDisk is itself an explicit opt-in to
+        # destroying this entire disk, already confirmed and already
+        # carried out in Step 6b, so the disk MakeWinPEMedia is about to
+        # format is one the operator knowingly erased moments ago. Asking
+        # again about a volume this script just created would be asking
+        # about data that no longer exists. Without /f the prompt is also
+        # unanswerable in practice here: diskpart consumes stdin, so a
+        # queued answer never reaches `choice`.
+        & MakeWinPEMedia.cmd /UFD /f $WorkDir "$UsbDriveLetter`:"
+    }
+    else {
+        Write-Warning (
+            "MakeWinPEMedia /UFD reformats $UsbDriveLetter`: -- confirm this " +
+            "is the correct drive before continuing. This script does NOT " +
+            "auto-confirm; it lets MakeWinPEMedia's own interactive prompt " +
+            "stand (GP-001: no scripted shortcut past a destructive " +
+            "confirmation)."
+        )
+        & MakeWinPEMedia.cmd /UFD $WorkDir "$UsbDriveLetter`:"
+    }
+
     if ($LASTEXITCODE -ne 0) {
         throw "MakeWinPEMedia.cmd exited with code $LASTEXITCODE."
+    }
+
+    # Exit code 0 is not proof the media was written: declining
+    # MakeWinPEMedia's format prompt ("UFD X: will not be formatted;
+    # exiting.") also exits 0, which previously let this script report
+    # "Deployment USB written" for a drive it had not touched. Verify
+    # the boot files are actually present instead of trusting the code.
+    foreach ($required in @("bootmgr", "sources\boot.wim", "EFI\BOOT\bootx64.efi")) {
+        $path = Join-Path "$UsbDriveLetter`:" $required
+        if (-not (Test-Path $path)) {
+            throw (
+                "MakeWinPEMedia reported success but $path is missing -- the " +
+                "media was not written. If it printed 'will not be formatted', " +
+                "its format confirmation was declined or could not be answered."
+            )
+        }
     }
 }
 
@@ -472,7 +598,11 @@ finally {
     Dismount-BootImage -MountDir $mountDir
 }
 
-Write-UsbMedia -WorkDir $WorkDir -UsbDriveLetter $UsbDriveLetter
+if ($CleanUsbDisk) {
+    Clear-UsbDisk -UsbDriveLetter $UsbDriveLetter
+}
+
+Write-UsbMedia -WorkDir $WorkDir -UsbDriveLetter $UsbDriveLetter -DiskAlreadyCleaned:$CleanUsbDisk
 
 Write-Step "Done"
 Write-Host "Deployment USB written to $UsbDriveLetter`:. Boot a target machine from it to test."
