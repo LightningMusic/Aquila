@@ -141,7 +141,14 @@ param(
     #
     # Off by default because it is destructive beyond the single
     # volume the operator named (GP-001).
-    [switch]$CleanUsbDisk
+    [switch]$CleanUsbDisk,
+
+    # Add the WinPE-NetFX / WinPE-Scripting / WinPE-PowerShell chain on
+    # top of WinPE-WMI. Aquila does not need any of it -- aquila.exe is
+    # a self-contained native executable -- and it costs roughly 170MB
+    # of the RAM disk WinPE boots into. Useful only when you want a
+    # PowerShell prompt inside WinPE for debugging.
+    [switch]$IncludePowerShell
 )
 
 $ErrorActionPreference = "Stop"
@@ -283,24 +290,35 @@ function Mount-BootImage {
 }
 
 # ---------------------------------------------------------------------------
-# Step 3: add WinPE optional components -- WMI is required by bios/ and
-# hardware/'s detection; WinPE-WMI depends on WinPE-NetFX and
-# WinPE-Scripting in current ADK releases (verified against Microsoft's
-# own WinPE Optional Components Reference at build time -- DISM itself
-# reports the exact missing prerequisite if this list is stale for a
-# future ADK version, so a failure here names its own fix).
+# Step 3: add WinPE optional components. WinPE-WMI is the only one
+# Aquila needs -- bios/ and hardware/ detection is WMI-based.
 #
-# WinPE-NetFX/WinPE-Scripting/WinPE-PowerShell are NOT required by
-# aquila.exe itself (it needs no .NET or PowerShell runtime -- it is a
-# self-contained native executable), but they remain required
-# dependencies of WinPE-WMI per Microsoft's own Optional Components
-# Reference, so they stay in this list for that reason alone.
+# An earlier revision of this script also added WinPE-NetFX,
+# WinPE-Scripting and WinPE-PowerShell, on the stated grounds that
+# WinPE-WMI depended on them. That is backwards: Microsoft's own
+# Optional Components Reference gives the chain as
+# WinPE-WMI -> WinPE-NetFX -> WinPE-Scripting -> WinPE-PowerShell,
+# i.e. WinPE-WMI is the foundational package the others depend on, and
+# needs none of them. aquila.exe is a self-contained native executable
+# with no .NET or PowerShell runtime requirement, so all three were
+# pure weight: they grew boot.wim from 324MB to 498MB, and WinPE loads
+# the whole of boot.wim into a RAM disk at boot -- 173MB of RAM spent
+# on nothing, which matters on exactly the older, low-memory hardware
+# this project exists to repurpose.
+#
+# -IncludePowerShell restores the full chain for anyone who wants a
+# PowerShell-capable WinPE to debug in; it is not needed to run Aquila.
 # ---------------------------------------------------------------------------
 
 function Add-RequiredOptionalComponents {
-    param([string]$MountDir, [string]$Architecture, [switch]$IncludeWifiSupport)
+    param(
+        [string]$MountDir,
+        [string]$Architecture,
+        [switch]$IncludeWifiSupport,
+        [switch]$IncludePowerShell
+    )
 
-    Write-Step "Step 3: adding WinPE optional components (WMI + prerequisites)"
+    Write-Step "Step 3: adding WinPE optional components"
 
     $ocRoot = Join-Path ${env:ProgramFiles(x86)} `
         "Windows Kits\10\Assessment and Deployment Kit\Windows Preinstallation Environment\$Architecture\WinPE_OCs"
@@ -313,7 +331,11 @@ function Add-RequiredOptionalComponents {
     # module's docstring; DISM enforces the dependency and will name a
     # missing prerequisite if this list is ever wrong for a given ADK
     # version).
-    $components = @("WinPE-WMI", "WinPE-NetFX", "WinPE-Scripting", "WinPE-PowerShell")
+    $components = @("WinPE-WMI")
+
+    if ($IncludePowerShell) {
+        $components += @("WinPE-NetFX", "WinPE-Scripting", "WinPE-PowerShell")
+    }
 
     if ($IncludeWifiSupport) {
         # WinPE-WiFi-Package (netsh wlan / WLAN AutoConfig) depends on
@@ -583,7 +605,11 @@ New-WinPEWorkingTree -WorkDir $WorkDir -Architecture $Architecture
 $mountDir = Mount-BootImage -WorkDir $WorkDir
 
 try {
-    Add-RequiredOptionalComponents -MountDir $mountDir -Architecture $Architecture -IncludeWifiSupport:$IncludeWifiSupport
+    Add-RequiredOptionalComponents `
+        -MountDir $mountDir `
+        -Architecture $Architecture `
+        -IncludeWifiSupport:$IncludeWifiSupport `
+        -IncludePowerShell:$IncludePowerShell
     Add-Drivers -MountDir $mountDir -DriversDir $DriversDir
     Install-AquilaPayload `
         -MountDir $mountDir `
