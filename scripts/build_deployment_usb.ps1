@@ -369,6 +369,33 @@ function Add-RequiredOptionalComponents {
 }
 
 # ---------------------------------------------------------------------------
+# Step 3b: enlarge WinPE's writable scratch space.
+#
+# WinPE runs from a RAM disk whose writable portion defaults to 32MB.
+# aquila.exe is a PyInstaller *onefile* build, which unpacks its bundled
+# DLLs into a temp directory on that RAM disk every time it starts, so
+# 32MB is nowhere near enough: the unpack runs out of room part way
+# through and PyInstaller reports a decompression failure rather than a
+# disk-full error, e.g.
+#   [PYI-1680:ERROR] Failed to extract VCRUNTIME140.dll:
+#   decompression resulted in return code -3!
+# which is what a real boot on a Dell Inspiron 5558 produced.
+#
+# 512MB is DISM's maximum and costs only RAM on the target machine.
+# ---------------------------------------------------------------------------
+
+function Set-ScratchSpace {
+    param([string]$MountDir, [int]$SizeMB = 512)
+
+    Write-Step "Step 3b: setting WinPE scratch space to ${SizeMB}MB"
+
+    Dism /Image:$MountDir /Set-ScratchSpace:$SizeMB | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "Dism /Set-ScratchSpace exited with code $LASTEXITCODE."
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Step 4: driver injection (optional) -- network/storage drivers a target
 # machine's chipset needs that WinPE's own inbox driver set doesn't cover.
 # Left as an explicit, opt-in step: most modern hardware needs nothing
@@ -610,6 +637,7 @@ try {
         -Architecture $Architecture `
         -IncludeWifiSupport:$IncludeWifiSupport `
         -IncludePowerShell:$IncludePowerShell
+    Set-ScratchSpace -MountDir $mountDir
     Add-Drivers -MountDir $mountDir -DriversDir $DriversDir
     Install-AquilaPayload `
         -MountDir $mountDir `
